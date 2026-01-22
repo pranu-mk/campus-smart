@@ -118,7 +118,7 @@ export default function Login() {
           onChange={(newRole) => setRole(newRole || "student")}
         />
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+        <form onSubmit={handleSubmit} className="space-y-8 mt-10">
           <FloatingInput
             label="Username"
             value={formData.username}
