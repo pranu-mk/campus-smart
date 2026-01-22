@@ -1,51 +1,36 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, ArrowLeft, Sun, Moon, Sparkles, X } from "lucide-react";
+import { Bell, ArrowLeft, Sun, Moon, Sparkles, X, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useStudentDashboardTheme } from "@/context/StudentDashboardThemeContext";
-
-interface Notification {
-  id: string;
-  type: "complaint" | "notice" | "event" | "placement";
-  title: string;
-  time: string;
-  read: boolean;
-}
 
 interface TopNavbarProps {
   title: string;
   subtitle?: string;
-  notifications?: Notification[];
+  notifications?: any[];
+  // NEW: Accept user data from the backend
+  userData?: {
+    full_name: string;
+    email: string;
+    prn: string;
+    profile_picture?: string;
+  };
 }
 
-const TopNavbar = ({ title, subtitle, notifications = [] }: TopNavbarProps) => {
+const TopNavbar = ({ title, subtitle, notifications = [], userData }: TopNavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, setTheme } = useStudentDashboardTheme();
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const isHomePage = location.pathname === "/";
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const isHomePage = location.pathname === "/dashboard/student";
+  const unreadCount = notifications.length;
 
   const getThemeClasses = () => {
     switch (theme) {
-      case "dark":
-        return "bg-[#1a1a2e] text-white shadow-sm";
-      case "fancy":
-        return "bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white";
-      default:
-        return "bg-white text-[#1f2937] shadow-[0_2px_12px_rgba(79,111,220,0.08)] border-b border-blue-100/50";
-    }
-  };
-
-  const getCardClasses = () => {
-    switch (theme) {
-      case "dark":
-        return "bg-[#252542] border-[#3d3d5c]";
-      case "fancy":
-        return "bg-[#16213e]/90 border-[#0f3460] shadow-[0_0_20px_rgba(79,111,220,0.3)]";
-      default:
-        return "bg-white border-blue-100 shadow-[0_4px_16px_rgba(79,111,220,0.1)]";
+      case "dark": return "bg-[#1a1a2e] text-white shadow-sm";
+      case "fancy": return "bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white";
+      default: return "bg-white text-[#1f2937] shadow-sm border-b border-blue-100/50";
     }
   };
 
@@ -53,151 +38,48 @@ const TopNavbar = ({ title, subtitle, notifications = [] }: TopNavbarProps) => {
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className={`flex items-center justify-between mb-6 p-4 rounded-2xl shadow-card ${getThemeClasses()}`}
+      className={`flex items-center justify-between mb-6 p-4 rounded-2xl ${getThemeClasses()}`}
     >
       <div className="flex items-center gap-4">
-        {!isHomePage && (
-          <button
-            onClick={() => navigate(-1)}
-            className={`p-2 rounded-xl transition-colors ${
-              theme === "light" 
-                ? "hover:bg-gray-100 text-[#4f6fdc]" 
-                : "hover:bg-white/10 text-white"
-            }`}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        )}
-        <div>
-          <h1 className={`text-2xl font-bold ${theme === "light" ? "text-[#1f2937]" : "text-white"}`}>
-            {title}
-          </h1>
-          {subtitle && (
-            <p className={theme === "light" ? "text-[#6b7280]" : "text-white/70"}>
-              {subtitle}
-            </p>
+        {/* Profile Picture / Icon */}
+        <div className="w-12 h-12 rounded-xl overflow-hidden bg-blue-500 flex items-center justify-center shadow-inner">
+          {userData?.profile_picture ? (
+            <img src={userData.profile_picture} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <User className="text-white w-6 h-6" />
           )}
+        </div>
+
+        <div>
+          <h1 className="text-xl font-bold leading-tight">
+            {/* Dynamic Name */}
+            {userData?.full_name ? `Welcome, ${userData.full_name}` : title}
+          </h1>
+          <p className={`text-sm opacity-70`}>
+            {/* Dynamic PRN and Email */}
+            {userData?.prn ? `${userData.prn} | ${userData.email}` : subtitle}
+          </p>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Theme Buttons */}
-        <div className={`flex items-center gap-1 p-1 rounded-xl ${
-          theme === "light" ? "bg-gray-100" : "bg-white/10"
-        }`}>
-          <button
-            onClick={() => setTheme("light")}
-            className={`p-2 rounded-lg transition-all ${
-              theme === "light" 
-                ? "bg-white text-[#4f6fdc] shadow-sm" 
-                : "text-white/70 hover:text-white"
-            }`}
-            title="Light Mode"
-          >
-            <Sun className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setTheme("dark")}
-            className={`p-2 rounded-lg transition-all ${
-              theme === "dark" 
-                ? "bg-[#3d3d5c] text-white shadow-sm" 
-                : "text-white/70 hover:text-white"
-            }`}
-            title="Dark Mode"
-          >
-            <Moon className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setTheme("fancy")}
-            className={`p-2 rounded-lg transition-all ${
-              theme === "fancy" 
-                ? "bg-gradient-to-r from-[#4f6fdc] to-[#9333ea] text-white shadow-sm" 
-                : "text-white/70 hover:text-white"
-            }`}
-            title="Fancy Mode"
-          >
-            <Sparkles className="w-4 h-4" />
-          </button>
+        {/* Theme Toggles (Keep your existing code here) */}
+        <div className={`flex items-center gap-1 p-1 rounded-xl ${theme === "light" ? "bg-gray-100" : "bg-white/10"}`}>
+          <button onClick={() => setTheme("light")} className={`p-2 rounded-lg ${theme === "light" ? "bg-white text-[#4f6fdc]" : "text-white/70"}`}><Sun className="w-4 h-4" /></button>
+          <button onClick={() => setTheme("dark")} className={`p-2 rounded-lg ${theme === "dark" ? "bg-[#3d3d5c] text-white" : "text-white/70"}`}><Moon className="w-4 h-4" /></button>
+          <button onClick={() => setTheme("fancy")} className={`p-2 rounded-lg ${theme === "fancy" ? "bg-gradient-to-r from-[#4f6fdc] to-[#9333ea] text-white" : "text-white/70"}`}><Sparkles className="w-4 h-4" /></button>
         </div>
 
-        {/* Notifications Bell */}
+        {/* Notifications Bell (Keep your existing code here) */}
         <div className="relative">
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
-            className={`p-2.5 rounded-xl transition-colors relative ${
-              theme === "light" 
-                ? "hover:bg-gray-100 text-[#6b7280]" 
-                : "hover:bg-white/10 text-white/80"
-            }`}
-          >
-            <Bell className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-          <AnimatePresence>
-            {showNotifications && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className={`absolute right-0 top-12 w-80 rounded-2xl shadow-xl border z-50 ${getCardClasses()}`}
-              >
-                <div className={`p-4 border-b ${theme === "light" ? "border-gray-100" : "border-white/10"}`}>
-                  <div className="flex items-center justify-between">
-                    <h3 className={`font-semibold ${theme === "light" ? "text-[#1f2937]" : "text-white"}`}>
-                      Notifications
-                    </h3>
-                    <button
-                      onClick={() => setShowNotifications(false)}
-                      className={`p-1 rounded-lg ${theme === "light" ? "hover:bg-gray-100" : "hover:bg-white/10"}`}
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="max-h-80 overflow-y-auto p-2">
-                  {notifications.length === 0 ? (
-                    <p className={`text-center py-8 ${theme === "light" ? "text-[#6b7280]" : "text-white/60"}`}>
-                      No notifications
-                    </p>
-                  ) : (
-                    notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`p-3 rounded-xl mb-1 cursor-pointer transition-colors ${
-                          notification.read 
-                            ? theme === "light" ? "hover:bg-gray-50" : "hover:bg-white/5"
-                            : theme === "light" ? "bg-[#4f6fdc]/5 hover:bg-[#4f6fdc]/10" : "bg-[#4f6fdc]/20 hover:bg-[#4f6fdc]/30"
-                        }`}
-                      >
-                        <p className={`text-sm font-medium ${theme === "light" ? "text-[#1f2937]" : "text-white"}`}>
-                          {notification.title}
-                        </p>
-                        <p className={`text-xs mt-1 ${theme === "light" ? "text-[#6b7280]" : "text-white/60"}`}>
-                          {notification.time}
-                        </p>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <div className={`p-3 border-t ${theme === "light" ? "border-gray-100" : "border-white/10"}`}>
-                  <button className="w-full py-2 text-center text-sm text-[#4f6fdc] font-medium hover:underline">
-                    View all notifications
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+           <button onClick={() => setShowNotifications(!showNotifications)} className="p-2.5 rounded-xl hover:bg-black/5 relative">
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{unreadCount}</span>}
+           </button>
         </div>
       </div>
     </motion.div>
   );
 };
 
-export default TopNavbar;
+export default TopNavbar; 

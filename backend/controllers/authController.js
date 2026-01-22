@@ -2,20 +2,16 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-exports.login = async (req, res) => {
+// --- 1. LOGIN LOGIC ---
+const login = async (req, res) => {
     try {
-        console.log("--- Login Attempt Detected ---");
-        console.log("Body Received:", req.body);
-
         const { identifier, password } = req.body;
-        // If 'role' is missing from body, we'll initialize it as null
         let selectedRole = req.body.role; 
 
         if (!identifier || !password) {
-            return res.status(400).json({ success: false, message: "Username and Password are required." });
+            return res.status(400).json({ success: false, message: "Required fields missing." });
         }
 
-        // 1. Fetch user from DB first to find their TRUE role
         const [rows] = await db.execute("SELECT * FROM users WHERE username = ? OR email = ?", [identifier, identifier]);
         const user = rows[0];
 
@@ -23,21 +19,12 @@ exports.login = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid credentials." });
         }
 
-        // 2. FALLBACK LOGIC: If frontend forgot the role, use the DB role
-        if (!selectedRole) {
-            console.log("Warning: Frontend forgot 'role' field. Using DB role instead.");
-            selectedRole = user.role;
-        }
+        if (!selectedRole) selectedRole = user.role;
 
-        // 3. Strict Check: If they DID send a role, it must match the DB
         if (user.role.toLowerCase() !== selectedRole.toLowerCase()) {
-            return res.status(401).json({ 
-                success: false, 
-                message: `You are a ${user.role}. Please select the correct tab.` 
-            });
+            return res.status(401).json({ success: false, message: `Please select the correct role.` });
         }
 
-        // 4. Token & Success
         const token = jwt.sign(
             { id: user.id, role: user.role.toLowerCase() }, 
             process.env.JWT_SECRET, 
@@ -48,8 +35,7 @@ exports.login = async (req, res) => {
             success: true,
             token,
             role: user.role.toLowerCase(),
-            name: user.full_name,
-            redirectUrl: `/dashboard/${user.role.toLowerCase()}`
+            name: user.full_name
         });
 
     } catch (err) {
@@ -58,21 +44,34 @@ exports.login = async (req, res) => {
     }
 };
 
-// ... register function remains unchanged ...
-// --- REGISTER LOGIC ---
-exports.register = async (req, res) => {
+// --- 2. UPDATE PROFILE LOGIC ---
+const updateProfile = async (req, res) => {
     try {
-        const { role, photo, fullName, email, mobile, username, password, department } = req.body;
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        // Safety check for JWT data
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: "Unauthorized access" });
+        }
 
-        const sql = `INSERT INTO users (role, profile_picture, full_name, email, mobile_number, username, password, department) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        const params = [role.toLowerCase(), photo, fullName, email, mobile, username, hashedPassword, department];
+        const userId = req.user.id;
+        const { fullName, mobileNumber, username } = req.body;
 
-        await db.execute(sql, params);
-        res.status(201).json({ success: true, message: "Registration Successful!" });
+        const sql = `UPDATE users SET full_name = ?, mobile_number = ?, username = ? WHERE id = ?`;
+        const [result] = await db.execute(sql, [fullName, mobileNumber, username, userId]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.json({ success: true, message: "Profile updated successfully!" });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Registration Error" });
+        console.error("Update Profile Error:", err.message);
+        res.status(500).json({ success: false, message: "Failed to update profile: " + err.message });
     }
+};
+
+// --- 3. EXPORT ALL FUNCTIONS AT ONCE ---
+// This ensures authRoutes.js can see both 'login' and 'updateProfile'
+module.exports = {
+    login,
+    updateProfile
 };

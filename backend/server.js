@@ -6,9 +6,9 @@ const app = express();
 
 // --- FIXED CORS CONFIGURATION ---
 app.use(cors({
-    origin: 'http://localhost:8080', // CHANGED THIS to match your port 8080
-    methods: ['GET', 'POST'],
-    credentials: true
+    origin: 'http://localhost:8080', // Allow your frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explicitly allow PUT
+    allowedHeaders: ['Content-Type', 'Authorization']
 })); 
 
 // --- JSON PARSING MIDDLEWARE ---
