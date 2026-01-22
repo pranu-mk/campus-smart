@@ -1,336 +1,258 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Search, Filter, FileText, Eye, Clock, CheckCircle, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FileText, Clock, Loader2, CheckCircle, Search, Filter, X, MessageSquare } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
-import TopNavbar from "@/components/layout/TopNavbar";
-import { complaintAPI } from "@/modules/student/services/api";
-import { toast } from "@/hooks/use-toast";
 
-interface Complaint {
-  complaint_id: string;
-  category: string;
-  sub_category: string;
-  subject: string;
-  description: string;
-  status: "Pending" | "In-Progress" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High";
-  created_at: string;
-  updated_at: string;
-}
+const allComplaints = [
+  { id: "CMP001", category: "Hostel", subject: "Water supply issue in Block A", status: "Pending", date: "Jan 18, 2026", description: "No water supply since morning in Block A rooms 201-210.", assignedTo: "Mr. Kumar", timeline: [{ status: "Submitted", date: "Jan 18, 2026", time: "9:00 AM" }] },
+  { id: "CMP002", category: "Exam", subject: "Hall ticket not generated", status: "In-Progress", date: "Jan 17, 2026", description: "Unable to download hall ticket for mid-sem exams.", assignedTo: "Exam Cell", timeline: [{ status: "Submitted", date: "Jan 17, 2026", time: "2:00 PM" }, { status: "Under Review", date: "Jan 17, 2026", time: "4:30 PM" }] },
+  { id: "CMP003", category: "Faculty", subject: "Attendance discrepancy", status: "Resolved", date: "Jan 16, 2026", description: "My attendance shows 60% but I have attended 85% classes.", assignedTo: "Dr. Sharma", timeline: [{ status: "Submitted", date: "Jan 16, 2026", time: "10:00 AM" }, { status: "Under Review", date: "Jan 16, 2026", time: "11:00 AM" }, { status: "Resolved", date: "Jan 17, 2026", time: "3:00 PM" }] },
+  { id: "CMP004", category: "Campus", subject: "Parking lot lighting issue", status: "Pending", date: "Jan 15, 2026", description: "Two street lights not working in parking area B.", assignedTo: "Maintenance", timeline: [{ status: "Submitted", date: "Jan 15, 2026", time: "6:00 PM" }] },
+  { id: "CMP005", category: "Hostel", subject: "AC not working in room", status: "In-Progress", date: "Jan 14, 2026", description: "Air conditioner in room 305 has stopped working.", assignedTo: "Hostel Warden", timeline: [{ status: "Submitted", date: "Jan 14, 2026", time: "8:00 AM" }, { status: "Technician Assigned", date: "Jan 14, 2026", time: "10:00 AM" }] },
+  { id: "CMP006", category: "Exam", subject: "Re-evaluation request", status: "Resolved", date: "Jan 10, 2026", description: "Request for re-evaluation of DBMS paper.", assignedTo: "Exam Cell", timeline: [{ status: "Submitted", date: "Jan 10, 2026", time: "11:00 AM" }, { status: "Processing", date: "Jan 11, 2026", time: "2:00 PM" }, { status: "Resolved", date: "Jan 13, 2026", time: "4:00 PM" }] },
+];
 
-const statusIcons = {
-  "Pending": Clock,
-  "In-Progress": Loader2,
-  "Resolved": CheckCircle,
-  "Closed": CheckCircle,
-};
+const summaryCards = [
+  { title: "All", count: allComplaints.length, icon: FileText, color: "#4f6fdc", filter: "all" },
+  { title: "Pending", count: allComplaints.filter(c => c.status === "Pending").length, icon: Clock, color: "#f6c453", filter: "Pending" },
+  { title: "In-Progress", count: allComplaints.filter(c => c.status === "In-Progress").length, icon: Loader2, color: "#f39c3d", filter: "In-Progress" },
+  { title: "Resolved", count: allComplaints.filter(c => c.status === "Resolved").length, icon: CheckCircle, color: "#49b675", filter: "Resolved" },
+];
 
-const statusColors = {
-  "Pending": "#f59e0b",
-  "In-Progress": "#3b82f6",
-  "Resolved": "#10b981",
-  "Closed": "#6b7280",
+const statusClasses: Record<string, string> = {
+  "Pending": "badge-pending",
+  "In-Progress": "badge-progress",
+  "Resolved": "badge-resolved",
 };
 
 const MyComplaints = () => {
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-    totalComplaints: 0,
-  });
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedComplaint, setSelectedComplaint] = useState<typeof allComplaints[0] | null>(null);
 
-  const fetchComplaints = async (page = 1) => {
-    try {
-      setIsLoading(true);
-      const response = await complaintAPI.getAll(page, 10);
-      setComplaints(response.complaints);
-      setPagination(response.pagination);
-    } catch (error: any) {
-      toast({
-        title: "Failed to load complaints",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchComplaints();
-  }, []);
-
-  const filteredComplaints = complaints.filter((complaint) => {
-    const matchesSearch = complaint.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         complaint.complaint_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         complaint.category.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredComplaints = allComplaints.filter((complaint) => {
     const matchesStatus = statusFilter === "all" || complaint.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesCategory = categoryFilter === "all" || complaint.category === categoryFilter;
+    const matchesSearch = complaint.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      complaint.id.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesCategory && matchesSearch;
   });
 
-  const handlePageChange = (page: number) => {
-    fetchComplaints(page);
-  };
-
-  if (isLoading) {
-    return (
-      <MainLayout>
-        <TopNavbar title="My Complaints" subtitle="Track and manage your submitted complaints" />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-[#4f6fdc] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading complaints...</p>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
+  const categories = [...new Set(allComplaints.map(c => c.category))];
 
   return (
     <MainLayout>
-      <TopNavbar title="My Complaints" subtitle="Track and manage your submitted complaints" />
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="mb-6"
+      >
+        <h1 className="text-2xl font-bold text-[#1f2937]">My Complaints</h1>
+        <p className="text-[#6b7280]">Track and manage all your complaints</p>
+      </motion.div>
 
-      {/* Search and Filter */}
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {summaryCards.map((card, index) => {
+          const Icon = card.icon;
+          return (
+            <motion.div
+              key={card.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+              whileHover={{ scale: 1.02 }}
+              onClick={() => setStatusFilter(card.filter)}
+              className={`bg-white rounded-2xl p-5 shadow-card hover:shadow-card-hover transition-all cursor-pointer border-2 ${
+                statusFilter === card.filter ? "border-[#4f6fdc]" : "border-transparent"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[#6b7280] mb-1">{card.title}</p>
+                  <p className="text-2xl font-bold" style={{ color: card.color }}>{card.count}</p>
+                </div>
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: `${card.color}15` }}
+                >
+                  <Icon className="w-6 h-6" style={{ color: card.color }} />
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Filters */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-card p-6 mb-6"
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="bg-white rounded-2xl p-4 shadow-card mb-6 flex flex-wrap items-center gap-4"
       >
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search complaints by ID, subject, or category..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4f6fdc] focus:border-transparent"
-            />
-          </div>
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="pl-10 pr-8 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4f6fdc] focus:border-transparent bg-white"
-            >
-              <option value="all">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="In-Progress">In-Progress</option>
-              <option value="Resolved">Resolved</option>
-              <option value="Closed">Closed</option>
-            </select>
-          </div>
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6b7280]" />
+          <input
+            type="text"
+            placeholder="Search complaints..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#4f6fdc] focus:ring-2 focus:ring-[#4f6fdc]/20 outline-none transition-all text-[#1f2937]"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="w-5 h-5 text-[#6b7280]" />
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#4f6fdc] outline-none text-sm text-[#1f2937] bg-white"
+          >
+            <option value="all">All Categories</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
         </div>
       </motion.div>
 
-      {/* Complaints List */}
+      {/* Complaints Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
         className="bg-white rounded-2xl shadow-card overflow-hidden"
       >
-        {filteredComplaints.length === 0 ? (
-          <div className="text-center py-12">
-            <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No complaints found</h3>
-            <p className="text-gray-500">
-              {searchTerm || statusFilter !== "all" 
-                ? "Try adjusting your search or filter criteria"
-                : "You haven't submitted any complaints yet"
-              }
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Complaint ID</th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Category</th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Subject</th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Status</th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Priority</th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Date</th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredComplaints.map((complaint, index) => {
-                    const StatusIcon = statusIcons[complaint.status];
-                    const statusColor = statusColors[complaint.status];
-                    
-                    return (
-                      <motion.tr
-                        key={complaint.complaint_id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="py-4 px-6 text-sm font-medium text-[#4f6fdc]">
-                          {complaint.complaint_id}
-                        </td>
-                        <td className="py-4 px-6 text-sm text-gray-900 capitalize">
-                          {complaint.category}
-                        </td>
-                        <td className="py-4 px-6 text-sm text-gray-600 max-w-xs truncate">
-                          {complaint.subject}
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-2">
-                            <StatusIcon 
-                              className="w-4 h-4" 
-                              style={{ color: statusColor }}
-                            />
-                            <span 
-                              className="px-3 py-1 rounded-full text-xs font-medium"
-                              style={{ 
-                                backgroundColor: `${statusColor}15`,
-                                color: statusColor 
-                              }}
-                            >
-                              {complaint.status}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            complaint.priority === 'High' ? 'bg-red-100 text-red-800' :
-                            complaint.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
-                            {complaint.priority}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-sm text-gray-500">
-                          {new Date(complaint.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="py-4 px-6">
-                          <button
-                            onClick={() => setSelectedComplaint(complaint)}
-                            className="p-2 rounded-lg hover:bg-[#4f6fdc]/10 transition-colors group"
-                          >
-                            <Eye className="w-4 h-4 text-gray-400 group-hover:text-[#4f6fdc]" />
-                          </button>
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-                <div className="text-sm text-gray-500">
-                  Showing {filteredComplaints.length} of {pagination.totalComplaints} complaints
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handlePageChange(pagination.currentPage - 1)}
-                    disabled={pagination.currentPage <= 1}
-                    className="px-3 py-1 rounded border border-gray-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                  >
-                    Previous
-                  </button>
-                  <span className="px-3 py-1 text-sm">
-                    Page {pagination.currentPage} of {pagination.totalPages}
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(pagination.currentPage + 1)}
-                    disabled={pagination.currentPage >= pagination.totalPages}
-                    className="px-3 py-1 rounded border border-gray-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left py-4 px-6 text-sm font-medium text-[#6b7280]">ID</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-[#6b7280]">Category</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-[#6b7280]">Subject</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-[#6b7280]">Date</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-[#6b7280]">Status</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-[#6b7280]">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredComplaints.map((complaint, index) => (
+                <motion.tr
+                  key={complaint.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.3 + index * 0.05 }}
+                  className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                >
+                  <td className="py-4 px-6 text-sm font-medium text-[#4f6fdc]">{complaint.id}</td>
+                  <td className="py-4 px-6 text-sm text-[#1f2937]">{complaint.category}</td>
+                  <td className="py-4 px-6 text-sm text-[#6b7280] max-w-[200px] truncate">{complaint.subject}</td>
+                  <td className="py-4 px-6 text-sm text-[#6b7280]">{complaint.date}</td>
+                  <td className="py-4 px-6">
+                    <span className={`${statusClasses[complaint.status]} px-3 py-1 rounded-full text-xs font-medium`}>
+                      {complaint.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6">
+                    <button
+                      onClick={() => setSelectedComplaint(complaint)}
+                      className="px-4 py-2 rounded-lg bg-[#4f6fdc]/10 text-[#4f6fdc] text-sm font-medium hover:bg-[#4f6fdc]/20 transition-colors"
+                    >
+                      View
+                    </button>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </motion.div>
 
       {/* Complaint Detail Modal */}
-      {selectedComplaint && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <AnimatePresence>
+        {selectedComplaint && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedComplaint(null)}
           >
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Complaint Details</h3>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-[#1f2937]">{selectedComplaint.id}</h2>
+                  <span className={`${statusClasses[selectedComplaint.status]} px-3 py-1 rounded-full text-xs font-medium`}>
+                    {selectedComplaint.status}
+                  </span>
+                </div>
                 <button
                   onClick={() => setSelectedComplaint(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  ✕
+                  <X className="w-5 h-5 text-[#6b7280]" />
                 </button>
               </div>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Complaint ID</label>
-                <p className="text-[#4f6fdc] font-medium">{selectedComplaint.complaint_id}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="p-6 space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Category</label>
-                  <p className="capitalize">{selectedComplaint.category}</p>
+                  <p className="text-sm text-[#6b7280] mb-1">Subject</p>
+                  <p className="text-[#1f2937] font-medium">{selectedComplaint.subject}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Sub Category</label>
-                  <p>{selectedComplaint.sub_category}</p>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Subject</label>
-                <p>{selectedComplaint.subject}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Description</label>
-                <p className="text-gray-700 whitespace-pre-wrap">{selectedComplaint.description}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Status</label>
-                  <p className="flex items-center gap-2">
-                    {React.createElement(statusIcons[selectedComplaint.status], {
-                      className: "w-4 h-4",
-                      style: { color: statusColors[selectedComplaint.status] }
-                    })}
-                    {selectedComplaint.status}
-                  </p>
+                  <p className="text-sm text-[#6b7280] mb-1">Category</p>
+                  <p className="text-[#1f2937]">{selectedComplaint.category}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Priority</label>
-                  <p>{selectedComplaint.priority}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Created</label>
-                  <p>{new Date(selectedComplaint.created_at).toLocaleString()}</p>
+                  <p className="text-sm text-[#6b7280] mb-1">Description</p>
+                  <p className="text-[#1f2937]">{selectedComplaint.description}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Last Updated</label>
-                  <p>{new Date(selectedComplaint.updated_at).toLocaleString()}</p>
+                  <p className="text-sm text-[#6b7280] mb-1">Assigned To</p>
+                  <p className="text-[#1f2937]">{selectedComplaint.assignedTo}</p>
                 </div>
+                <div>
+                  <p className="text-sm text-[#6b7280] mb-3">Status Timeline</p>
+                  <div className="space-y-3">
+                    {selectedComplaint.timeline.map((item, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="w-3 h-3 rounded-full bg-[#4f6fdc] mt-1.5" />
+                        <div>
+                          <p className="text-sm font-medium text-[#1f2937]">{item.status}</p>
+                          <p className="text-xs text-[#6b7280]">{item.date} at {item.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {selectedComplaint.status === "Resolved" && (
+                  <div className="pt-4 border-t border-gray-100">
+                    <p className="text-sm text-[#6b7280] mb-2">Your Feedback</p>
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 text-[#4f6fdc]" />
+                      <input
+                        type="text"
+                        placeholder="Leave your feedback..."
+                        className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:border-[#4f6fdc] outline-none text-sm"
+                      />
+                      <button className="px-4 py-2 rounded-lg bg-[#4f6fdc] text-white text-sm font-medium">
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </MainLayout>
   );
 };

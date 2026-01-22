@@ -4,7 +4,7 @@ import { HelpCircle, MessageSquare, Clock, CheckCircle, Send, ChevronDown, Chevr
 import MainLayout from "@/components/layout/MainLayout";
 import TopNavbar from "@/components/layout/TopNavbar";
 import { toast } from "@/hooks/use-toast";
-import { useStudentDashboardTheme } from "@/context/StudentDashboardThemeContext";
+import { useTheme } from "@/context/ThemeContext";
 
 interface Message {
   sender: "student" | "faculty";
@@ -77,7 +77,7 @@ const issueCategories = ["Fee Related", "Certificate", "Academic", "Exam", "Libr
 const priorityOptions = ["Low", "Medium", "High"];
 
 const Helpdesk = () => {
-  const { theme } = useStudentDashboardTheme();
+  const { theme } = useTheme();
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
   const [showNewTicket, setShowNewTicket] = useState(false);
   const [expandedTicket, setExpandedTicket] = useState<string | null>(null);

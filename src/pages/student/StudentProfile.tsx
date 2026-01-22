@@ -1,276 +1,336 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, Phone, MapPin, Edit2, Save, X } from "lucide-react";
+import { User, Mail, Phone, GraduationCap, Save, LogOut, Camera, Lock, Hash, BookOpen, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import TopNavbar from "@/components/layout/TopNavbar";
 import { toast } from "@/hooks/use-toast";
+import { useTheme } from "@/context/ThemeContext";
 
-interface UserProfile {
-  name: string;
-  email: string;
-  phone: string;
-  department: string;
-  enrollmentNumber: string;
-  semester: string;
-  cgpa: string;
-  address: string;
-  dob: string;
-  gender: string;
-}
-
-const StudentProfile = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState<UserProfile>({
-    name: "John Doe",
-    email: "john.doe@campus.edu",
-    phone: "9999988888",
+const Profile = () => {
+  const navigate = useNavigate();
+  const { theme } = useTheme();
+  const [profile, setProfile] = useState({
+    fullName: "John Doe",
+    collegeEmail: "john.doe@college.edu",
+    mobileNumber: "+91 98765 43210",
+    prn: "CS2021001",
     department: "Computer Science",
-    enrollmentNumber: "CS2021001",
-    semester: "6",
-    cgpa: "8.5",
-    address: "123, Main Street, City",
-    dob: "2003-05-15",
-    gender: "Male",
+    course: "B.Tech",
+    year: "3rd Year",
+    username: "johndoe2021",
+    password: "",
+    confirmPassword: "",
   });
 
-  const [editedProfile, setEditedProfile] = useState(profile);
-
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditedProfile(profile);
-  };
-
   const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
+    if (profile.password && profile.password !== profile.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match!",
+        variant: "destructive",
+      });
+      return;
+    }
     toast({
-      title: "Profile Updated",
-      description: "Your profile has been updated successfully.",
+      title: "Profile Saved!",
+      description: "Your profile information has been updated successfully.",
     });
+    setProfile({ ...profile, password: "", confirmPassword: "" });
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
+  const handleLogout = () => {
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out successfully.",
+    });
+    navigate("/");
   };
 
-  const handleInputChange = (field: keyof UserProfile, value: string) => {
-    setEditedProfile({ ...editedProfile, [field]: value });
+  const getCardClasses = () => {
+    switch (theme) {
+      case "dark":
+        return "bg-[#1a1a2e]";
+      case "fancy":
+        return "bg-gradient-to-br from-[#16213e] to-[#1a1a2e] border border-[#4f6fdc]/20";
+      default:
+        return "bg-white";
+    }
   };
 
-  const profileSections = [
-    {
-      title: "Personal Information",
-      fields: [
-        { label: "Full Name", key: "name", type: "text" },
-        { label: "Email", key: "email", type: "email" },
-        { label: "Phone", key: "phone", type: "tel" },
-        { label: "Date of Birth", key: "dob", type: "date" },
-        { label: "Gender", key: "gender", type: "text" },
-        { label: "Address", key: "address", type: "text" },
-      ],
-    },
-    {
-      title: "Academic Information",
-      fields: [
-        { label: "Department", key: "department", type: "text" },
-        { label: "Enrollment Number", key: "enrollmentNumber", type: "text" },
-        { label: "Current Semester", key: "semester", type: "text" },
-        { label: "CGPA", key: "cgpa", type: "number" },
-      ],
-    },
-  ];
+  const getInputClasses = () => {
+    return theme === "light"
+      ? "border-gray-200 focus:border-[#4f6fdc] text-[#1f2937] bg-white"
+      : "border-white/20 bg-white/5 focus:border-[#4f6fdc] text-white";
+  };
 
   return (
     <MainLayout>
-      <TopNavbar title="Student Profile" subtitle="Manage your personal and academic information" />
-      <div className="p-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8 flex justify-between items-center"
-        >
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Student Profile
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Manage your personal and academic information
-            </p>
-          </div>
-          {!isEditing && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleEdit}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              <Edit2 className="w-5 h-5" />
-              Edit Profile
-            </motion.button>
-          )}
-        </motion.div>
+      <TopNavbar title="My Profile" subtitle="View and manage your profile information" />
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 border border-gray-200 dark:border-gray-700 mb-8"
+          transition={{ duration: 0.3 }}
+          className="lg:col-span-1"
         >
-          <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
-              <User className="w-12 h-12 text-white" />
+          <div className={`rounded-2xl shadow-card p-6 text-center ${getCardClasses()}`}>
+            <div className="relative inline-block">
+              <div className={`w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                theme === "fancy" 
+                  ? "bg-gradient-to-br from-[#4f6fdc] to-[#9333ea]" 
+                  : "bg-[#4f6fdc]"
+              }`}>
+                <User className="w-12 h-12 text-white" />
+              </div>
+              <button className={`absolute bottom-3 right-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                theme === "light" ? "bg-white shadow-md" : "bg-[#3d3d5c]"
+              }`}>
+                <Camera className={`w-4 h-4 ${theme === "light" ? "text-[#4f6fdc]" : "text-white"}`} />
+              </button>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {profile.name}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-2">
-                {profile.department} • {profile.enrollmentNumber}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500">
-                Semester {profile.semester} • CGPA: {profile.cgpa}
-              </p>
-            </div>
-          </div>
+            <h2 className={`text-xl font-semibold ${theme === "light" ? "text-[#1f2937]" : "text-white"}`}>
+              {profile.fullName}
+            </h2>
+            <p className="text-[#4f6fdc] font-medium">{profile.prn}</p>
+            <p className={`text-sm mt-1 ${theme === "light" ? "text-[#6b7280]" : "text-white/60"}`}>
+              {profile.department}
+            </p>
+            <p className={`text-sm ${theme === "light" ? "text-[#6b7280]" : "text-white/60"}`}>
+              {profile.course} • {profile.year}
+            </p>
 
-          {/* Contact Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Email</p>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {profile.email}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <Phone className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Phone</p>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {profile.phone}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <MapPin className="w-5 h-5 text-red-600 dark:text-red-400" />
-              <div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Address</p>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {profile.address}
-                </p>
-              </div>
+            <div className={`mt-6 pt-6 border-t ${theme === "light" ? "border-gray-100" : "border-white/10"}`}>
+              <button
+                onClick={handleLogout}
+                className="w-full py-3 rounded-xl bg-red-500/10 text-red-500 font-medium hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
             </div>
           </div>
         </motion.div>
 
-        {/* Profile Sections */}
-        {!isEditing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            {profileSections.map((section, sectionIdx) => (
-              <motion.div
-                key={sectionIdx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + sectionIdx * 0.1 }}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700"
-              >
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  {section.title}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {section.fields.map((field) => (
-                    <div key={field.key}>
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
-                        {field.label}
-                      </label>
-                      <p className="text-gray-900 dark:text-white p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        {profile[field.key as keyof UserProfile]}
-                      </p>
-                    </div>
-                  ))}
+        {/* Profile Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="lg:col-span-2"
+        >
+          <div className={`rounded-2xl shadow-card p-6 ${getCardClasses()}`}>
+            <h3 className={`text-lg font-semibold mb-6 ${theme === "light" ? "text-[#1f2937]" : "text-white"}`}>
+              Student Profile Form
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Full Name */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <input
+                    type="text"
+                    value={profile.fullName}
+                    onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  />
                 </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
+              </div>
 
-        {/* Edit Form */}
-        {isEditing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            {profileSections.map((section, sectionIdx) => (
-              <motion.div
-                key={sectionIdx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + sectionIdx * 0.1 }}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700"
-              >
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  {section.title}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {section.fields.map((field) => (
-                    <div key={field.key}>
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
-                        {field.label}
-                      </label>
-                      <input
-                        type={field.type}
-                        value={editedProfile[field.key as keyof UserProfile]}
-                        onChange={(e) =>
-                          handleInputChange(
-                            field.key as keyof UserProfile,
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  ))}
+              {/* College Email */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  College Email
+                </label>
+                <div className="relative">
+                  <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <input
+                    type="email"
+                    value={profile.collegeEmail}
+                    onChange={(e) => setProfile({ ...profile, collegeEmail: e.target.value })}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  />
                 </div>
-              </motion.div>
-            ))}
+              </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-4 justify-end">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleCancel}
-                className="flex items-center gap-2 px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <X className="w-5 h-5" />
-                Cancel
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleSave}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                <Save className="w-5 h-5" />
-                Save Changes
-              </motion.button>
+              {/* Mobile Number */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  Mobile Number
+                </label>
+                <div className="relative">
+                  <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <input
+                    type="tel"
+                    value={profile.mobileNumber}
+                    onChange={(e) => setProfile({ ...profile, mobileNumber: e.target.value })}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  />
+                </div>
+              </div>
+
+              {/* PRN */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  PRN (Permanent Registration Number)
+                </label>
+                <div className="relative">
+                  <Hash className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <input
+                    type="text"
+                    value={profile.prn}
+                    disabled
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${
+                      theme === "light" ? "bg-gray-50 text-[#6b7280]" : "bg-white/5 text-white/50"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Department */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  Department
+                </label>
+                <div className="relative">
+                  <GraduationCap className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <select
+                    value={profile.department}
+                    onChange={(e) => setProfile({ ...profile, department: e.target.value })}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  >
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Mechanical">Mechanical</option>
+                    <option value="Civil">Civil</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Course */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  Course
+                </label>
+                <div className="relative">
+                  <BookOpen className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <select
+                    value={profile.course}
+                    onChange={(e) => setProfile({ ...profile, course: e.target.value })}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  >
+                    <option value="B.Tech">B.Tech</option>
+                    <option value="M.Tech">M.Tech</option>
+                    <option value="BCA">BCA</option>
+                    <option value="MCA">MCA</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Year */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  Year
+                </label>
+                <div className="relative">
+                  <Calendar className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <select
+                    value={profile.year}
+                    onChange={(e) => setProfile({ ...profile, year: e.target.value })}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  >
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Username */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  Username
+                </label>
+                <div className="relative">
+                  <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <input
+                    type="text"
+                    value={profile.username}
+                    onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  New Password (optional)
+                </label>
+                <div className="relative">
+                  <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <input
+                    type="password"
+                    value={profile.password}
+                    onChange={(e) => setProfile({ ...profile, password: e.target.value })}
+                    placeholder="Leave blank to keep current"
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  />
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-[#6b7280]" : "text-white/70"}`}>
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${theme === "light" ? "text-[#6b7280]" : "text-white/50"}`} />
+                  <input
+                    type="password"
+                    value={profile.confirmPassword}
+                    onChange={(e) => setProfile({ ...profile, confirmPassword: e.target.value })}
+                    placeholder="Confirm new password"
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border outline-none ${getInputClasses()}`}
+                  />
+                </div>
+              </div>
             </div>
-          </motion.div>
-        )}
+
+            {/* Save Button */}
+            <div className="mt-8 flex gap-4">
+              <button
+                onClick={handleSave}
+                className={`flex-1 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
+                  theme === "fancy"
+                    ? "bg-gradient-to-r from-[#4f6fdc] to-[#9333ea] text-white hover:opacity-90"
+                    : "bg-[#4f6fdc] text-white hover:bg-[#4560c7]"
+                }`}
+              >
+                <Save className="w-4 h-4" />
+                Save Profile
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 py-3 rounded-xl font-medium bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </MainLayout>
   );
 };
 
-export default StudentProfile;
+export default Profile;

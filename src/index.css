@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* Light Theme - Soft blues and lavenders */
+    /* Light Theme - Professional Blue */
     --background: 210 40% 98%;
     --foreground: 222 47% 11%;
     
@@ -37,20 +37,20 @@
     
     --radius: 0.75rem;
     
-    /* Custom tokens */
-    --gradient-start: 210 100% 95%;
-    --gradient-end: 270 100% 95%;
-    --blob-color-1: 221 83% 53%;
-    --blob-color-2: 270 60% 60%;
-    --glow-color: 221 83% 53%;
-    --surface-elevated: 0 0% 100%;
-    --nav-bg: 0 0% 100% / 0.8;
-    --text-gradient-from: 221 83% 53%;
-    --text-gradient-to: 270 60% 60%;
+    /* Campus Canvas Colors - Light Theme */
+    --stat-blue: 226 65% 59%;
+    --stat-yellow: 43 91% 65%;
+    --stat-orange: 28 88% 59%;
+    --stat-green: 147 41% 50%;
+    
+    --text-heading: 220 13% 18%;
+    --text-body: 220 9% 46%;
+    --bg-primary: 210 100% 98%;
+    --card-bg: 0 0% 100%;
   }
 
   .dark {
-    /* Dark Theme - Navy with blue-purple tint */
+    /* Dark Theme - Navy with Blue-Purple */
     --background: 222 47% 8%;
     --foreground: 210 40% 98%;
     
@@ -79,20 +79,20 @@
     --input: 217 33% 20%;
     --ring: 217 91% 60%;
     
-    /* Custom tokens */
-    --gradient-start: 222 47% 10%;
-    --gradient-end: 270 30% 15%;
-    --blob-color-1: 217 91% 40%;
-    --blob-color-2: 270 50% 40%;
-    --glow-color: 217 91% 60%;
-    --surface-elevated: 222 47% 14%;
-    --nav-bg: 222 47% 8% / 0.9;
-    --text-gradient-from: 217 91% 60%;
-    --text-gradient-to: 270 50% 60%;
+    /* Dark Theme Custom Colors */
+    --stat-blue: 226 65% 59%;
+    --stat-yellow: 43 91% 65%;
+    --stat-orange: 28 88% 59%;
+    --stat-green: 147 41% 50%;
+    
+    --text-heading: 210 40% 98%;
+    --text-body: 210 40% 85%;
+    --bg-primary: 222 47% 10%;
+    --card-bg: 222 47% 14%;
   }
 
   .fancy {
-    /* Fancy Theme - Gradients and glassmorphism */
+    /* Fancy Theme - Gradients & Glassmorphism */
     --background: 230 25% 12%;
     --foreground: 210 40% 98%;
     
@@ -121,16 +121,16 @@
     --input: 230 30% 25%;
     --ring: 250 85% 65%;
     
-    /* Custom tokens */
-    --gradient-start: 250 85% 65%;
-    --gradient-end: 200 80% 50%;
-    --blob-color-1: 250 85% 55%;
-    --blob-color-2: 200 80% 50%;
-    --glow-color: 250 85% 65%;
-    --surface-elevated: 230 30% 20%;
-    --nav-bg: 230 25% 12% / 0.7;
-    --text-gradient-from: 250 85% 70%;
-    --text-gradient-to: 200 80% 60%;
+    /* Fancy Theme Custom Colors */
+    --stat-blue: 226 65% 59%;
+    --stat-yellow: 43 91% 65%;
+    --stat-orange: 28 88% 59%;
+    --stat-green: 147 41% 50%;
+    
+    --text-heading: 210 40% 98%;
+    --text-body: 210 40% 85%;
+    --bg-primary: 230 25% 14%;
+    --card-bg: 230 30% 18%;
   }
 }
 
@@ -151,6 +151,11 @@
 }
 
 @layer components {
+  /* ========== DASHBOARD BACKGROUND ========== */
+  .dashboard-bg {
+    background: linear-gradient(135deg, #f3f6fd 0%, #e8eef7 100%);
+  }
+
   .glass-card {
     @apply bg-card backdrop-blur-xl border border-border/50 rounded-2xl;
     box-shadow: 0 2px 12px 0 rgba(79, 111, 220, 0.08);
@@ -280,7 +285,44 @@
     display: none;
   }
 
-  /* Light theme optimizations */
+  /* ========== STAT CARD COLORS ========== */
+  .stat-card-blue {
+    background: linear-gradient(135deg, #4f6fdc 0%, #5b7cfa 100%);
+    box-shadow: 0 8px 24px rgba(79, 111, 220, 0.2);
+  }
+
+  .stat-card-yellow {
+    background: linear-gradient(135deg, #f6c453 0%, #f7d067 100%);
+    box-shadow: 0 8px 24px rgba(246, 196, 83, 0.2);
+  }
+
+  .stat-card-orange {
+    background: linear-gradient(135deg, #f39c3d 0%, #f5ab55 100%);
+    box-shadow: 0 8px 24px rgba(243, 156, 61, 0.2);
+  }
+
+  .stat-card-green {
+    background: linear-gradient(135deg, #49b675 0%, #5cc485 100%);
+    box-shadow: 0 8px 24px rgba(73, 182, 117, 0.2);
+  }
+
+  /* ========== BADGE COLORS ========== */
+  .badge-pending {
+    background-color: #f6c453;
+    color: #1f2937;
+  }
+
+  .badge-progress {
+    background-color: #f39c3d;
+    color: white;
+  }
+
+  .badge-resolved {
+    background-color: #49b675;
+    color: white;
+  }
+
+  /* ========== LIGHT THEME OPTIMIZATIONS ========== */
   .light .glass-card {
     transition: all 0.3s ease;
   }
@@ -297,5 +339,24 @@
 
   .light a.glass-card:hover {
     background: linear-gradient(135deg, #ffffff 0%, #eef3ff 100%);
+  }
+
+  /* ========== DARK THEME OPTIMIZATIONS ========== */
+  .dark .glass-card {
+    transition: all 0.3s ease;
+  }
+
+  .dark .glass-card:hover {
+    box-shadow: 0 8px 24px 0 rgba(79, 111, 220, 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* ========== FANCY THEME OPTIMIZATIONS ========== */
+  .fancy .stat-card-blue:hover,
+  .fancy .stat-card-yellow:hover,
+  .fancy .stat-card-orange:hover,
+  .fancy .stat-card-green:hover {
+    transform: translateY(-4px);
+    filter: brightness(1.1);
   }
 }
