@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
 import { dashboardAPI } from "@/modules/student/services/api";
 
+
 const Profile = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -29,37 +30,38 @@ const Profile = () => {
   });
 
   // FETCH REAL DATA
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await dashboardAPI.getDashboardData();
-        const userData = response?.user || response?.data?.user;
+ useEffect(() => {
+  const fetchProfileData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await dashboardAPI.getDashboardData();
+      const userData = response?.user || response?.data?.user;
 
-        if (userData) {
-          setProfile(prev => ({
-            ...prev,
-            fullName: userData.full_name || "",
-            collegeEmail: userData.email || "",
-            mobileNumber: userData.mobile_number || "",
-            prn: userData.prn || "",
-            department: userData.department || "",
-            course: userData.course || "",
-            year: userData.year || "",
-            username: userData.username || "",
-            profilePicture: userData.profile_picture || null
-          }));
-        }
-      } catch (error) {
-        console.error("Profile fetch error:", error);
-        toast({ title: "Error", description: "Could not load profile", variant: "destructive" });
-      } finally {
-        setIsLoading(false);
+      if (userData) {
+        setProfile(prev => ({
+          ...prev,
+          // LEFT SIDE: Your Frontend State names
+          // RIGHT SIDE: The names from your Backend JSON
+          fullName: userData.full_name || "", 
+          collegeEmail: userData.email || "",
+          mobileNumber: userData.mobile_number || "",
+          prn: userData.prn || "",
+          department: userData.department || "",
+          course: userData.course || "",
+          year: userData.year || "",
+          username: userData.username || "",
+          profilePicture: userData.profile_picture || null
+        }));
       }
-    };
+    } catch (error) {
+      console.error("Profile fetch error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchProfileData();
-  }, []);
+  fetchProfileData();
+}, []);
 
   // HANDLE SAVE LOGIC (Personal Info)
   const handleSave = async () => {

@@ -2,24 +2,26 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+
+// --- IMPORT CONTROLLERS ---
 const complaintController = require('../controllers/complaintController');
 const noticeController = require('../controllers/noticeController');
-const studentDashboard = require('../dashboards/studentDashboard');
 const studentDashboard = require('../controllers/studentDashboard');
+const helpdeskController = require('../controllers/helpdeskController');
+
 // --- MULTER STORAGE CONFIGURATION ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/complaints/'); // Ensure this folder exists!
+        cb(null, 'uploads/complaints/');
     },
     filename: (req, file, cb) => {
-        // Renames file to: complaint-TIMESTAMP.jpg
         cb(null, `complaint-${Date.now()}${path.extname(file.originalname)}`);
     }
 });
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB Limit
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const filetypes = /jpeg|jpg|png|pdf/;
         const mimetype = filetypes.test(file.mimetype);
@@ -33,19 +35,24 @@ const upload = multer({
 });
 
 // --- COMPLAINT ROUTES ---
-// Notice the 'upload.single('file')' added to the POST route
 router.post('/complaints', upload.single('file'), complaintController.createComplaint);
-
 router.get('/complaints/stats', complaintController.getComplaintStats);
 router.get('/complaints/recent', complaintController.getRecentComplaints);
 router.get('/complaints', complaintController.getUserComplaints);
 router.get('/complaints/:complaintId', complaintController.getComplaintById);
 
-// --- OTHER ROUTES REMAIN THE SAME ---
+// --- HELPDESK ROUTES ---
+router.post('/helpdesk/tickets', helpdeskController.createTicket);
+router.get('/helpdesk/tickets', helpdeskController.getTickets);
+
+// --- NOTICE & NOTIFICATION ROUTES ---
 router.get('/notices', noticeController.getNotices);
 router.get('/notifications', noticeController.getNotifications);
 router.put('/notifications/:notificationId/read', noticeController.markNotificationRead);
 router.put('/notifications/read-all', noticeController.markAllNotificationsRead);
-router.use('/dashboard', studentDashboard);
+
+// --- DASHBOARD ROUTES ---
+// FIXED: Removed the router.use line that was causing the crash
 router.get('/dashboard', studentDashboard.getDashboardData);
+
 module.exports = router;

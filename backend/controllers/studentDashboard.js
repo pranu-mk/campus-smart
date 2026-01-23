@@ -4,8 +4,15 @@ exports.getDashboardData = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        // 1. Fetch Status Counts (Stats)
-        // We use SUM(CASE) to count everything in one single scan of the table
+        // 1. Fetch Full User Profile (For Profile Page & Navbar)
+        const [userRows] = await db.execute(
+            `SELECT full_name, email, username, prn, department, course, year, mobile_number, profile_picture 
+             FROM users WHERE id = ?`,
+            [userId]
+        );
+        const userData = userRows[0];
+
+        // 2. Fetch Status Counts (Stats)
         const [statsRows] = await db.execute(
             `SELECT 
                 COUNT(*) as total,
@@ -17,7 +24,7 @@ exports.getDashboardData = async (req, res) => {
             [userId]
         );
 
-        // 2. Fetch 5 Most Recent Complaints
+        // 3. Fetch 5 Most Recent Complaints
         const [recentComplaints] = await db.execute(
             `SELECT complaint_id, category, subject, status, created_at, description, file_path
              FROM complaints 
@@ -27,42 +34,51 @@ exports.getDashboardData = async (req, res) => {
             [userId]
         );
 
-        // 3. Fetch Latest 3 Notices (Global for all students)
+        // 4. Fetch Latest 3 Notices
         const [notices] = await db.execute(
-    `SELECT 
-        id, 
-        title, 
-        content, 
-        type as category, -- We 'alias' type as category so the frontend doesn't break
-        created_at as date -- We 'alias' created_at as date to match frontend
-     FROM notices 
-     WHERE is_active = TRUE 
-     AND target_role IN ('all', 'student')
-     ORDER BY created_at DESC 
-     LIMIT 3`
-);
-const [unreadRows] = await db.execute(
-    `SELECT COUNT(*) as unreadCount 
-     FROM notifications 
-     WHERE user_id = ? AND is_read = FALSE`, 
-    [userId]
-);
-        // 4. Combine and Send
-       res.status(200).json({
-    success: true,
-    stats: {
-        total: Number(statsRows[0].total) || 0,
-        pending: Number(statsRows[0].pending) || 0,
-        inProgress: Number(statsRows[0].inProgress) || 0,
-        resolved: Number(statsRows[0].resolved) || 0
-    },
-    recentComplaints,
-    notices,
-    unreadCount: 4, // You can make this dynamic later!
-    user: {
-        fullName: req.user.full_name,
-        username: req.user.username,
-                avatar: req.user.avatar // If you have avatars
+            `SELECT 
+                id, 
+                title, 
+                content, 
+                type as category, 
+                created_at as date 
+             FROM notices 
+             WHERE is_active = TRUE 
+             AND target_role IN ('all', 'student')
+             ORDER BY created_at DESC 
+             LIMIT 3`
+        );
+
+        // 5. Fetch Unread Notification Count
+        const [unreadRows] = await db.execute(
+            `SELECT COUNT(*) as unreadCount 
+             FROM notifications 
+             WHERE user_id = ? AND is_read = FALSE`, 
+            [userId]
+        );
+
+        // 6. Combine and Send Response
+        res.status(200).json({
+            success: true,
+            stats: {
+                total: Number(statsRows[0].total) || 0,
+                pending: Number(statsRows[0].pending) || 0,
+                inProgress: Number(statsRows[0].inProgress) || 0,
+                resolved: Number(statsRows[0].resolved) || 0
+            },
+            recentComplaints,
+            notices,
+            unreadCount: unreadRows[0].unreadCount || 0,
+            user: {
+                full_name: userData?.full_name || "",
+                email: userData?.email || "",
+                username: userData?.username || "",
+                prn: userData?.prn || "",
+                department: userData?.department || "",
+                course: userData?.course || "",
+                year: userData?.year || "",
+                mobile_number: userData?.mobile_number || "",
+                profile_picture: userData?.profile_picture || null
             }
         });
 
