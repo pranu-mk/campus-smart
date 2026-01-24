@@ -13,8 +13,6 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   const headers: any = getAuthHeaders();
 
-  // If the body is NOT FormData, we set it to JSON.
-  // If it IS FormData, the browser sets the Content-Type with the boundary automatically.
   if (!(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
@@ -49,7 +47,9 @@ export const complaintAPI = {
   getById: async (complaintId: string) => apiRequest(`/student/complaints/${complaintId}`),
 };
 
+// FIXED: Added getNotices to match your Digital Notice Board page
 export const noticeAPI = {
+  getNotices: async (limit = 20) => apiRequest(`/student/notices?limit=${limit}`),
   getAll: async (limit = 10) => apiRequest(`/student/notices?limit=${limit}`),
 };
 
@@ -68,7 +68,11 @@ export const dashboardAPI = {
       body: JSON.stringify(userData),
     });
   },
-
+  // Add this to your dashboardAPI object
+getPlacements: async () => {
+  const response = await fetch('http://localhost:5000/api/placements/upcoming');
+  return response.json();
+},
   changePassword: async (passwordData: { oldPassword: string; newPassword: any }) => {
     return apiRequest('/auth/change-password', {
       method: 'PUT',
@@ -76,29 +80,49 @@ export const dashboardAPI = {
     });
   }
 };
-export const eventAPI = {
-  // Fetch all events (upcoming and past)
-  getAll: async () => apiRequest('/student/events'),
-  
-  // Fetch only upcoming events
-  getUpcoming: async () => apiRequest('/student/events/upcoming'),
 
+export const clubAPI = {
+  getAll: async () => apiRequest('/student/clubs'),
+  join: async (clubId: string) => apiRequest('/student/clubs/join', {
+    method: 'POST',
+    body: JSON.stringify({ clubId }),
+  }),
+  leave: async (clubId: string) => apiRequest(`/student/clubs/leave/${clubId}`, {
+    method: 'DELETE',
+  }),
+};
+
+export const pollAPI = {
+  getAll: async () => apiRequest('/student/polls'),
+  submitVote: async (pollId: string, optionId: string) => apiRequest('/student/polls/vote', {
+    method: 'POST',
+    body: JSON.stringify({ pollId, optionId }),
+  }),
+};
+
+export const placementAPI = {
+  getAll: async () => apiRequest('/student/placements'),
+  getStats: async () => apiRequest('/student/placements/stats'),
+  apply: async (placementId: string) => apiRequest('/student/placements/apply', {
+    method: 'POST',
+    body: JSON.stringify({ placementId }),
+  }),
+};
+
+export const eventAPI = {
+  getAll: async () => apiRequest('/student/events'),
+  getUpcoming: async () => apiRequest('/student/events/upcoming'),
   register: async (eventId: string) => apiRequest('/student/events/register', {
     method: 'POST',
     body: JSON.stringify({ eventId }),
   }),
 };
-// --- NEW MODULE: LOST & FOUND ---
+
 export const lostFoundAPI = {
-  // Fetch all items from the database
   getAll: async () => apiRequest('/student/lost-found'),
-  
-  // Claim a found item by its ID
   claim: async (id: string) => apiRequest(`/student/lost-found/${id}/claim`, { 
     method: 'PUT' 
   }),
-
-  // Submit a new lost/found report
   create: async (itemData: { 
     type: string; 
     title: string; 
@@ -119,5 +143,8 @@ export default {
   notification: notificationAPI,
   dashboard: dashboardAPI,
   lostFound: lostFoundAPI,
-  event: eventAPI, // Add this line
-};eventAPI
+  event: eventAPI,
+  club: clubAPI,
+  poll: pollAPI,
+  placement: placementAPI,
+};

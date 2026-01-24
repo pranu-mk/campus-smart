@@ -56,6 +56,27 @@ exports.getDashboardData = async (req, res) => {
              WHERE user_id = ? AND is_read = FALSE`, 
             [userId]
         );
+        
+        // 6. Fetch Top 3 Upcoming Events (and check registration)
+        const [events] = await db.execute(
+            `SELECT e.*, 
+             IF(r.student_id IS NULL, FALSE, TRUE) AS is_registered
+             FROM events e
+             LEFT JOIN event_registrations r ON e.id = r.event_id AND r.student_id = ?
+             WHERE e.event_date >= NOW()
+             ORDER BY e.event_date ASC 
+             LIMIT 3`,
+            [userId]
+        );
+        // 7. Fetch Clubs joined by the student
+        const [joinedClubs] = await db.execute(
+            `SELECT c.id, c.name, c.image_emoji, c.category
+             FROM clubs c
+             JOIN club_memberships cm ON c.id = cm.club_id
+             WHERE cm.student_id = ?
+             ORDER BY cm.joined_at DESC`,
+            [userId]
+        );
 
         // 6. Combine and Send Response
         res.status(200).json({
@@ -68,6 +89,8 @@ exports.getDashboardData = async (req, res) => {
             },
             recentComplaints,
             notices,
+            upcomingEvents: events,
+            joinedClubs,
             unreadCount: unreadRows[0].unreadCount || 0,
             user: {
                 full_name: userData?.full_name || "",
@@ -90,3 +113,4 @@ exports.getDashboardData = async (req, res) => {
         });
     }
 };
+

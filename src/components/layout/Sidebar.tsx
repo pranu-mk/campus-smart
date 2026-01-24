@@ -17,6 +17,7 @@ import {
   User,
 } from "lucide-react";
 import { useStudentDashboardTheme } from "@/context/StudentDashboardThemeContext";
+import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard/student" },
@@ -36,9 +37,11 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme } = useStudentDashboardTheme();
+  const { user, logout } = useAuth(); // Access global auth state
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const handleLogout = () => {
+    logout(); // Clear local state and storage
     navigate("/");
   };
 
@@ -58,20 +61,51 @@ const Sidebar = () => {
       initial={{ x: -280 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`fixed left-0 top-0 h-screen w-64 rounded-r-3xl ${theme === "light" ? "shadow-[4px_0_20px_rgba(79,111,220,0.15)]" : "shadow-sidebar"} z-50 flex flex-col overflow-hidden ${getSidebarClasses()}`}
+      className={`fixed left-0 top-0 h-screen w-64 rounded-r-3xl ${
+        theme === "light" ? "shadow-[4px_0_20px_rgba(79,111,220,0.15)]" : "shadow-sidebar"
+      } z-50 flex flex-col overflow-hidden ${getSidebarClasses()}`}
     >
       {/* Student Profile Card */}
       <div className={`p-6 ${theme === "light" ? "border-b border-blue-200/30" : "border-b border-white/10"}`}>
         <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-            theme === "fancy" ? "bg-gradient-to-br from-[#4f6fdc] to-[#9333ea]" : "bg-white/20"
+          {/* Profile Image / Icon Circle */}
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 bg-white/20 ${
+            theme === "fancy" ? "ring-2 ring-purple-400/30" : ""
           }`}>
-            <User className="w-6 h-6 text-white" />
+            {user?.profile_picture ? (
+              <img
+                src={user.profile_picture}
+                alt="Profile"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            ) : (
+              <User className="w-6 h-6 text-white" />
+            )}
           </div>
-          <div>
-            <h3 className="text-white font-semibold text-sm">John Doe</h3>
-            <p className="text-white/70 text-xs">CS2021001</p>
-            <p className="text-white/50 text-xs">Computer Science</p>
+
+          {/* Student Details */}
+          <div className="min-w-0 flex-1">
+            {user ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <h3 className="text-white font-semibold text-sm truncate" title={user.full_name}>
+                  {user.full_name || "Student"}
+                </h3>
+                <p className="text-white/70 text-[11px] truncate font-mono">
+                  {user.prn || "ID Pending"}
+                </p>
+                <p className="text-white/50 text-[10px] uppercase tracking-tighter truncate">
+                  {user.department || "General"}
+                </p>
+              </motion.div>
+            ) : (
+              <div className="space-y-2 animate-pulse">
+                <div className="h-3 w-20 bg-white/20 rounded"></div>
+                <div className="h-2 w-24 bg-white/10 rounded"></div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -115,9 +149,11 @@ const Sidebar = () => {
                       transition={{ duration: 0.15 }}
                     />
                   )}
-                  <item.icon className={`w-5 h-5 relative z-10 ${
-                    isActive && theme !== "fancy" ? "text-[#4f6fdc]" : ""
-                  }`} />
+                  <item.icon
+                    className={`w-5 h-5 relative z-10 ${
+                      isActive && theme !== "fancy" ? "text-[#4f6fdc]" : ""
+                    }`}
+                  />
                   <span className="text-sm relative z-10">{item.label}</span>
                 </Link>
               </motion.li>
@@ -131,17 +167,23 @@ const Sidebar = () => {
         <Link
           to="/dashboard/student/profile"
           className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/90 hover:bg-white/10 transition-all duration-200 mb-2 ${
-            location.pathname === "/dashboard/student/profile" 
+            location.pathname === "/dashboard/student/profile"
               ? theme === "fancy"
                 ? "bg-gradient-to-r from-[#4f6fdc] to-[#9333ea] shadow-lg"
                 : "bg-white text-[#4f6fdc]"
               : ""
           }`}
         >
-          <User className={`w-5 h-5 ${location.pathname === "/dashboard/student/profile" && theme !== "fancy" ? "text-[#4f6fdc]" : ""}`} />
+          <User
+            className={`w-5 h-5 ${
+              location.pathname === "/dashboard/student/profile" && theme !== "fancy"
+                ? "text-[#4f6fdc]"
+                : ""
+            }`}
+          />
           <span className="text-sm">Profile</span>
         </Link>
-        <button 
+        <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/90 hover:bg-red-500/20 transition-all duration-200 w-full"
         >

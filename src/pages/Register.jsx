@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, User, ArrowLeft, Building2, IdCard, Phone, BookOpen, Calendar, Briefcase, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext'; // Added Auth Context
 import AuthHeader from '../components/auth/AuthHeader';
 import RoleSelector from '../components/auth/RoleSelector';
 import AuthModeToggle from '../components/auth/AuthModeToggle';
@@ -33,6 +34,7 @@ const sublineVariants = {
 export default function Register() {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { login } = useAuth(); // Initialize login from context
   const [role, setRole] = useState('student');
   const [mode, setMode] = useState('register');
   const [isLoading, setIsLoading] = useState(false);
@@ -112,18 +114,16 @@ export default function Register() {
     });
 
     try {
-      // Determine endpoint based on mode
       const endpoint = mode === 'register' ? '/register' : '/login';
       const url = `http://localhost:5000/api/auth${endpoint}`;
 
-      // Prepare payload to match backend requirements
       const payload = mode === 'register' ? {
         role: role,
         photo: formData.photo,
         fullName: formData.fullName,
         email: formData.email,
         mobile: formData.mobile,
-        studentId: formData.studentId, // This is saved as PRN in DB
+        studentId: formData.studentId, 
         facultyId: formData.facultyId,
         department: formData.department,
         course: formData.course,
@@ -132,8 +132,9 @@ export default function Register() {
         username: formData.username,
         password: formData.password
       } : {
-        identifier: formData.username, // Login accepts username or email
-        password: formData.password
+        identifier: formData.username,
+        password: formData.password,
+        role: role // Include role for login consistency
       };
 
       const response = await fetch(url, {
@@ -151,15 +152,27 @@ export default function Register() {
         });
 
         if (mode === 'login') {
-          // Store session data
+          // Clear any old data
+          localStorage.clear();
+          
+          // Store basic session data
           localStorage.setItem('token', data.token);
           localStorage.setItem('role', data.role);
-          localStorage.setItem('userName', data.name);
+
+          // CRITICAL: Update AuthContext state so Sidebar/Dashboard can see data
+          login({
+            id: data.id,
+            role: data.role,
+            full_name: data.full_name || data.name,
+            prn: data.prn,
+            department: data.department,
+            profile_picture: data.profile_picture
+          });
 
           // Redirect to the appropriate dashboard
-          setTimeout(() => navigate(`/dashboard/${data.role}`), 1500);
+          setTimeout(() => navigate(`/dashboard/${data.role.toLowerCase()}`), 1500);
         } else {
-          // After registration, wait 2 seconds then switch to login mode automatically
+          // Reset and switch to login mode after successful registration
           setTimeout(() => {
             setMode('login');
             setIsLoading(false);
@@ -167,7 +180,6 @@ export default function Register() {
           }, 2000);
         }
       } else {
-        // Show error message from the backend (e.g., "Duplicate entry")
         setStatus({ type: 'error', message: data.message || 'Operation failed' });
         setIsLoading(false);
       }
@@ -226,7 +238,7 @@ export default function Register() {
             </Link>
           </motion.div>
 
-          <div className="glass-card p-8">
+          <div className="glass-card p-8 shadow-2xl">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${mode}-${role}`}
@@ -238,7 +250,7 @@ export default function Register() {
                 <h1 className="text-2xl font-bold text-foreground font-display mb-2">
                   {headlineVariants[mode][role] || headlineVariants.login[role]}
                 </h1>
-                <p className="text-muted-foreground">{sublineVariants[mode]}</p>
+                <p className="text-muted-foreground text-sm">{sublineVariants[mode]}</p>
               </motion.div>
             </AnimatePresence>
 
@@ -266,8 +278,8 @@ export default function Register() {
 
                   <AnimatePresence mode="wait">
                     {mode === 'register' && (
-                      <motion.div key="register-fields" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-4">
-                        <motion.div variants={itemVariants} className="flex justify-center">
+                      <motion.div key="register-fields" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-4 overflow-hidden">
+                        <motion.div variants={itemVariants} className="flex justify-center mb-4">
                           <PhotoUpload value={formData.photo} onChange={(v) => setFormData((prev) => ({ ...prev, photo: v }))} />
                         </motion.div>
 

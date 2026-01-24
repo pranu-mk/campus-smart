@@ -10,6 +10,10 @@ const studentDashboard = require('../controllers/studentDashboard');
 const helpdeskController = require('../controllers/helpdeskController');
 const lostFoundController = require('../controllers/lostFoundController');
 const eventController = require('../controllers/eventController');
+const clubController = require('../controllers/clubController');
+const pollController = require('../controllers/pollController');
+const placementController = require('../controllers/placementController');
+const chatbotController = require('../controllers/chatbotController');
 
 // --- MULTER STORAGE CONFIGURATION ---
 const storage = multer.diskStorage({
@@ -69,4 +73,22 @@ router.get('/events', eventController.getAllEvents);
 router.get('/events/upcoming', eventController.getUpcomingEvents);
 // Add this under your existing event routes
 router.post('/events/register', eventController.registerForEvent);
+
+// --- CLUB ROUTES ---
+router.get('/clubs', clubController.getAllClubs);
+router.post('/clubs/join', clubController.joinClub);
+router.delete('/clubs/leave/:clubId', clubController.leaveClub);
+
+// --- POLL ROUTES ---
+router.get('/polls', pollController.getAllPolls);
+router.post('/polls/vote', pollController.submitVote);
+
+// --- PLACEMENT ROUTES ---
+router.get('/placements', placementController.getAllPlacements);
+router.get('/placements/stats', placementController.getPlacementStats);
+router.post('/placements/apply', placementController.applyForPlacement);
+
+// --- CHATBOT ROUTES ---
+router.get('/chatbot/history', chatbotController.getChatHistory);
+router.post('/chatbot/message', chatbotController.sendMessage);
 module.exports = router;

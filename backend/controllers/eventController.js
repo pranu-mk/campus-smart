@@ -6,12 +6,19 @@ exports.getAllEvents = async (req, res) => {
 
     // This query selects all events AND checks if a registration exists for THIS student
     const query = `
-        SELECT e.*, 
+        SELECT 
+        e.id, 
+        e.title, 
+        e.description, 
+        e.event_type AS type, -- Alias to match frontend 'type'
+        e.event_date AS date, -- Alias to match frontend 'date'
+        e.location, 
+        e.organizer,
         IF(r.student_id IS NULL, FALSE, TRUE) AS is_registered
-        FROM events e
-        LEFT JOIN event_registrations r ON e.id = r.event_id AND r.student_id = ?
-        ORDER BY e.event_date DESC
-    `;
+    FROM events e
+    LEFT JOIN event_registrations r ON e.id = r.event_id AND r.student_id = ?
+    ORDER BY e.event_date DESC
+`;
     
     try {
         const [rows] = await db.query(query, [studentId]);

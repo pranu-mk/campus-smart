@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext"; 
 import RoleSelector from "../components/auth/RoleSelector";
 import FloatingInput from "../components/auth/FloatingInput";
 import PasswordInput from "../components/auth/PasswordInput";
@@ -8,11 +9,12 @@ import StatusFeedback from "../components/auth/StatusFeedback";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth(); 
 
   /* ==========================
-     STATE
+      STATE
   ========================== */
-  const [role, setRole] = useState("student"); // never undefined
+  const [role, setRole] = useState("student");
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -21,12 +23,11 @@ export default function Login() {
   const [status, setStatus] = useState({ type: null, message: "" });
 
   /* ==========================
-     SUBMIT HANDLER
+      SUBMIT HANDLER
   ========================== */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (isLoading) return; // hard guard
+    if (isLoading) return;
 
     setIsLoading(true);
     setStatus({ type: "loading", message: "Verifying credentials..." });
@@ -56,12 +57,25 @@ export default function Login() {
       }
 
       /* ==========================
-         AUTH SUCCESS
+          AUTH SUCCESS
       ========================== */
+      // 1. Clear any old, stale data
       localStorage.clear();
+
+      // 2. Save tokens for API calls
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
-      localStorage.setItem("userName", data.name || "");
+
+      // 3. UPDATE GLOBAL CONTEXT
+      // We use the EXACT keys from your SQL Table: full_name, prn, department, profile_picture
+      login({
+        id: data.id,
+        role: data.role,
+        full_name: data.full_name || data.name, 
+        prn: data.prn || data.username, 
+        department: data.department || "Information Technology",
+        profile_picture: data.profile_picture || null
+      });
 
       setStatus({
         type: "success",
@@ -69,17 +83,15 @@ export default function Login() {
       });
 
       /* ==========================
-         ROLE-BASED REDIRECT
+          ROLE-BASED REDIRECT
       ========================== */
       setTimeout(() => {
-        // Highest priority: backend-controlled redirect
         if (data.redirectUrl) {
           navigate(data.redirectUrl, { replace: true });
           return;
         }
 
-        // Frontend fallback
-        switch (data.role) {
+        switch (data.role.toLowerCase()) {
           case "student":
             navigate("/dashboard/student", { replace: true });
             break;
@@ -94,6 +106,7 @@ export default function Login() {
         }
       }, 800);
     } catch (error) {
+      console.error("Login Error:", error);
       setStatus({
         type: "error",
         message: "Unable to connect to server. Please try again.",
@@ -102,9 +115,6 @@ export default function Login() {
     }
   };
 
-  /* ==========================
-     UI
-  ========================== */
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md p-8 glass-card">
@@ -112,7 +122,6 @@ export default function Login() {
           Welcome Back
         </h1>
 
-        {/* ROLE SELECTOR */}
         <RoleSelector
           value={role}
           onChange={(newRole) => setRole(newRole || "student")}

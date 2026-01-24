@@ -1,39 +1,48 @@
 const db = require('../config/db');
 
-// Get active notices for user role
+// --- GET NOTICES ---
+// Fetches active notices and maps them to the frontend structure
 exports.getNotices = async (req, res) => {
     try {
-        const userRole = req.user.role;
+        // 1. Ensure limit is a real number (integer) for MySQL safety
         const limit = parseInt(req.query.limit) || 10;
+        
+        // 2. Identify the target role (usually 'student' for this dashboard)
+        const targetRole = 'student';
 
-        const [notices] = await db.execute(
-            `SELECT id, title, content, type, 
-                    DATE_FORMAT(created_at, '%b %d, %Y') as date,
-                    created_at
-             FROM notices 
-             WHERE is_active = TRUE 
-             AND (target_role = 'all' OR target_role = ?) 
-             AND (expires_at IS NULL OR expires_at > NOW())
-             ORDER BY created_at DESC 
-             LIMIT ?`,
-            [userRole, limit]
-        );
+        /**
+         * ALIAS MAPPING EXPLAINED:
+         * content AS description -> Your UI looks for 'description'
+         * type AS category      -> Your UI looks for 'category' to set icons/colors
+         * is_important AS important -> Your UI looks for 'important' to show red badges
+         */
+        const query = `
+            SELECT 
+                id, 
+                title, 
+                content AS description, 
+                type AS category, 
+                DATE_FORMAT(created_at, '%b %d, %Y') as date,
+                is_important AS important 
+            FROM notices 
+            WHERE is_active = TRUE
+            AND (target_role = 'all' OR target_role = ?) 
+            AND (expires_at IS NULL OR expires_at > NOW())
+            ORDER BY created_at DESC 
+            LIMIT ?`;
 
-        res.json({
-            success: true,
-            notices
-        });
-
-    } catch (error) {
-        console.error('Get notices error:', error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to fetch notices"
-        });
+        // 3. Pass arguments in order: [?] for role, then [?] for limit
+        const [rows] = await db.query(query, [targetRole, limit]);
+        
+        res.status(200).json(rows);
+    } catch (err) {
+        console.error('Get notices error:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
-// Get user notifications
+// --- GET NOTIFICATIONS ---
+// Fetches user-specific notifications with dynamic time formatting
 exports.getNotifications = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -53,7 +62,7 @@ exports.getNotifications = async (req, res) => {
             [userId, limit]
         );
 
-        // Get unread count
+        // Get unread count for the notification badge
         const [unreadResult] = await db.execute(
             'SELECT COUNT(*) as unread FROM notifications WHERE user_id = ? AND is_read = FALSE',
             [userId]
@@ -74,7 +83,7 @@ exports.getNotifications = async (req, res) => {
     }
 };
 
-// Mark notification as read
+// --- MARK SINGLE NOTIFICATION AS READ ---
 exports.markNotificationRead = async (req, res) => {
     try {
         const { notificationId } = req.params;
@@ -99,7 +108,7 @@ exports.markNotificationRead = async (req, res) => {
     }
 };
 
-// Mark all notifications as read
+// --- MARK ALL NOTIFICATIONS AS READ ---
 exports.markAllNotificationsRead = async (req, res) => {
     try {
         const userId = req.user.id;
