@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BackToTop from '../components/BackToTop';
@@ -15,6 +15,21 @@ const services = [
       </svg>
     ),
     color: 'from-blue-500 to-cyan-500',
+    fullDescription: 'Our Hostel Complaints system provides a streamlined way for students to report and track issues related to hostel facilities. From maintenance requests to room allocation concerns, every complaint is logged, assigned, and resolved systematically.',
+    features: [
+      'Submit complaints 24/7 from any device',
+      'Real-time status tracking with notifications',
+      'Priority-based resolution system',
+      'Direct communication with hostel wardens',
+      'Historical complaint records for reference',
+      'Anonymous feedback option available'
+    ],
+    process: [
+      { step: 1, title: 'Submit Complaint', desc: 'Fill out the complaint form with details and supporting images if needed' },
+      { step: 2, title: 'Auto Assignment', desc: 'System automatically assigns to relevant hostel authority' },
+      { step: 3, title: 'Track Progress', desc: 'Monitor resolution status through your dashboard' },
+      { step: 4, title: 'Resolution', desc: 'Receive notification upon complaint resolution' }
+    ]
   },
   {
     id: 'student-helpdesk',
@@ -26,6 +41,21 @@ const services = [
       </svg>
     ),
     color: 'from-purple-500 to-pink-500',
+    fullDescription: 'The Student Helpdesk serves as your central point of contact for all academic and administrative queries. Our dedicated team ensures prompt responses and effective solutions to help you navigate your campus journey smoothly.',
+    features: [
+      'Multi-channel support (chat, email, phone)',
+      'Knowledge base with FAQs and guides',
+      'Ticket-based query management',
+      'Average response time under 2 hours',
+      'Escalation system for urgent matters',
+      'Feedback collection for service improvement'
+    ],
+    process: [
+      { step: 1, title: 'Raise Query', desc: 'Submit your question through any available channel' },
+      { step: 2, title: 'Ticket Created', desc: 'Receive a unique ticket ID for tracking' },
+      { step: 3, title: 'Expert Response', desc: 'Get assistance from trained helpdesk staff' },
+      { step: 4, title: 'Resolution & Feedback', desc: 'Query resolved with optional feedback' }
+    ]
   },
   {
     id: 'student-clubs',
@@ -37,6 +67,21 @@ const services = [
       </svg>
     ),
     color: 'from-green-500 to-emerald-500',
+    fullDescription: 'Discover a vibrant community of student-led clubs covering diverse interests from technology and arts to sports and social service. Join clubs that match your passions, develop leadership skills, and create lasting memories.',
+    features: [
+      'Browse 50+ active student clubs',
+      'Easy online membership registration',
+      'Event calendars for each club',
+      'Inter-club collaboration opportunities',
+      'Achievement badges and recognition',
+      'Club formation support for new ideas'
+    ],
+    process: [
+      { step: 1, title: 'Explore Clubs', desc: 'Browse through various club categories and descriptions' },
+      { step: 2, title: 'Join Club', desc: 'Submit membership request to clubs of interest' },
+      { step: 3, title: 'Participate', desc: 'Attend events, meetings, and activities' },
+      { step: 4, title: 'Grow & Lead', desc: 'Take on responsibilities and leadership roles' }
+    ]
   },
   {
     id: 'digital-notices',
@@ -48,6 +93,21 @@ const services = [
       </svg>
     ),
     color: 'from-yellow-500 to-orange-500',
+    fullDescription: 'Never miss an important announcement with our Digital Notices system. From exam schedules to event updates, all official communications are delivered directly to your dashboard with smart filtering and priority notifications.',
+    features: [
+      'Real-time push notifications',
+      'Category-wise filtering (Academic, Events, Admin)',
+      'Bookmark important notices',
+      'Search through notice archives',
+      'Department-specific announcements',
+      'SMS alerts for critical notices'
+    ],
+    process: [
+      { step: 1, title: 'Notice Published', desc: 'Administration posts official announcement' },
+      { step: 2, title: 'Smart Delivery', desc: 'Notice reaches relevant students/faculty' },
+      { step: 3, title: 'Notification', desc: 'Receive alert via app, email, or SMS' },
+      { step: 4, title: 'Acknowledge', desc: 'Mark as read and take necessary action' }
+    ]
   },
   {
     id: 'campus-events',
@@ -59,6 +119,21 @@ const services = [
       </svg>
     ),
     color: 'from-red-500 to-rose-500',
+    fullDescription: 'Experience the vibrant campus life through our comprehensive events platform. From cultural festivals and tech fests to workshops and guest lectures, discover events that enrich your college experience and build your network.',
+    features: [
+      'Interactive event calendar',
+      'One-click event registration',
+      'Personalized event recommendations',
+      'Reminder notifications',
+      'Post-event photo galleries',
+      'Certificate generation for participants'
+    ],
+    process: [
+      { step: 1, title: 'Discover Events', desc: 'Browse upcoming events by category or date' },
+      { step: 2, title: 'Register', desc: 'Sign up for events with a single click' },
+      { step: 3, title: 'Attend', desc: 'Participate and engage in campus activities' },
+      { step: 4, title: 'Certificate', desc: 'Receive participation certificates digitally' }
+    ]
   },
   {
     id: 'placements',
@@ -70,6 +145,21 @@ const services = [
       </svg>
     ),
     color: 'from-indigo-500 to-violet-500',
+    fullDescription: 'Your gateway to career success. Access placement drives, internship opportunities, and career resources all in one place. Stay ahead with company profiles, interview preparation materials, and real-time placement statistics.',
+    features: [
+      'Company-wise placement schedules',
+      'Resume builder and portfolio tools',
+      'Mock interview scheduling',
+      'Placement statistics and analytics',
+      'Alumni networking platform',
+      'Job alerts based on profile'
+    ],
+    process: [
+      { step: 1, title: 'Profile Setup', desc: 'Complete your placement profile with skills and preferences' },
+      { step: 2, title: 'Apply', desc: 'Register for placement drives matching your criteria' },
+      { step: 3, title: 'Prepare', desc: 'Access company-specific preparation resources' },
+      { step: 4, title: 'Get Placed', desc: 'Attend interviews and secure your dream job' }
+    ]
   },
   {
     id: 'scholarships',
@@ -81,10 +171,130 @@ const services = [
       </svg>
     ),
     color: 'from-teal-500 to-cyan-500',
+    fullDescription: 'Explore various scholarship opportunities to support your education. From merit-based awards to need-based assistance, find financial aid options that help you focus on your academic goals without financial stress.',
+    features: [
+      'Comprehensive scholarship database',
+      'Eligibility checker tool',
+      'Online application submission',
+      'Document upload and verification',
+      'Application status tracking',
+      'Renewal reminders for ongoing scholarships'
+    ],
+    process: [
+      { step: 1, title: 'Check Eligibility', desc: 'Use our tool to find scholarships you qualify for' },
+      { step: 2, title: 'Gather Documents', desc: 'Prepare required documents for application' },
+      { step: 3, title: 'Apply Online', desc: 'Submit application through the portal' },
+      { step: 4, title: 'Track & Receive', desc: 'Monitor status and receive disbursement' }
+    ]
   },
 ];
 
+// Service Detail Component
+function ServiceDetail({ service, onBack }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Back Button */}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mb-8 group"
+      >
+        <motion.span
+          animate={{ x: [0, -4, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          ←
+        </motion.span>
+        <span className="font-medium">Back to All Services</span>
+      </button>
+
+      {/* Service Header */}
+      <div className="glass-card p-8 md:p-12 mb-8">
+        <div className="flex flex-col md:flex-row items-start gap-6">
+          <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center text-white flex-shrink-0`}>
+            {service.icon}
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-display font-bold mb-4">{service.title}</h1>
+            <p className="text-lg text-muted-foreground leading-relaxed">{service.fullDescription}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Grid */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-display font-semibold mb-6">Key Features</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {service.features.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="glass-card p-5 flex items-start gap-3"
+            >
+              <span className={`w-6 h-6 rounded-full bg-gradient-to-br ${service.color} flex items-center justify-center text-white text-sm flex-shrink-0`}>
+                ✓
+              </span>
+              <span className="text-foreground">{feature}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Process Steps */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-display font-semibold mb-6">How It Works</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {service.process.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.15 }}
+              className="glass-card p-6 text-center relative"
+            >
+              <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${service.color} flex items-center justify-center text-white text-xl font-bold mx-auto mb-4`}>
+                {item.step}
+              </div>
+              <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+              <p className="text-sm text-muted-foreground">{item.desc}</p>
+              {index < service.process.length - 1 && (
+                <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-muted-foreground/30 text-2xl">
+                  →
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="glass-card p-8 text-center"
+      >
+        <h3 className="text-xl font-semibold mb-3">Ready to get started?</h3>
+        <p className="text-muted-foreground mb-6">Login to access {service.title} and other campus services</p>
+        <Link to="/login" className="btn-primary inline-block px-8 py-3">
+          Login to Access
+        </Link>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function Services() {
+  const { serviceId } = useParams();
+  const navigate = useNavigate();
+  
+  const selectedService = serviceId ? services.find(s => s.id === serviceId) : null;
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -95,69 +305,81 @@ export default function Services() {
       <Navbar />
       
       <main className="pt-24 pb-16">
-        {/* Hero Section */}
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto text-center">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
-            >
-              All Services
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6"
-            >
-              Explore Campus <span className="text-gradient">Services</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-lg text-muted-foreground max-w-2xl mx-auto"
-            >
-              Everything you need to navigate campus life, all in one place
-            </motion.p>
-          </div>
-        </section>
-
-        {/* Services Grid */}
-        <section className="py-12 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {services.map((service, index) => (
-                <Link key={service.id} to={`/services/${service.id}`}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -8, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)' }}
-                    className="glass-card p-8 h-full cursor-pointer group"
-                  >
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                      {service.icon}
-                    </div>
-                    <h3 className="font-display font-semibold text-xl mb-3">{service.title}</h3>
-                    <p className="text-muted-foreground">{service.description}</p>
-                    <div className="mt-4 flex items-center text-primary font-medium">
-                      
-                      <motion.span
-                        className="ml-2"
-                        animate={{ x: [0, 4, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
-                        →
-                      </motion.span>
-                    </div>
-                  </motion.div>
-                </Link>
-              ))}
+        {selectedService ? (
+          // Service Detail View
+          <section className="py-8 px-4">
+            <div className="max-w-6xl mx-auto">
+              <ServiceDetail service={selectedService} onBack={() => navigate('/services')} />
             </div>
-          </div>
-        </section>
+          </section>
+        ) : (
+          // Services List View
+          <>
+            {/* Hero Section */}
+            <section className="py-16 px-4">
+              <div className="max-w-6xl mx-auto text-center">
+                <motion.span
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
+                >
+                  All Services
+                </motion.span>
+                <motion.h1
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6"
+                >
+                  Explore Campus <span className="text-gradient">Services</span>
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-lg text-muted-foreground max-w-2xl mx-auto"
+                >
+                  Everything you need to navigate campus life, all in one place
+                </motion.p>
+              </div>
+            </section>
+
+            {/* Services Grid */}
+            <section className="py-12 px-4">
+              <div className="max-w-6xl mx-auto">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {services.map((service, index) => (
+                    <Link key={service.id} to={`/services/${service.id}`}>
+                      <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={{ y: -8, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)' }}
+                        className="glass-card p-8 h-full cursor-pointer group"
+                      >
+                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                          {service.icon}
+                        </div>
+                        <h3 className="font-display font-semibold text-xl mb-3">{service.title}</h3>
+                        <p className="text-muted-foreground">{service.description}</p>
+                        <div className="mt-4 flex items-center text-primary font-medium">
+                          Learn more
+                          <motion.span
+                            className="ml-2"
+                            animate={{ x: [0, 4, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                          >
+                            →
+                          </motion.span>
+                        </div>
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </>
+        )}
       </main>
 
       <Footer />
