@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Users, UserPlus, CheckCircle, LogOut, Loader2 } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
-import TopNavbar from "@/components/layout/TopNavbar";
+import MainLayout from "@/components/layout/student/MainLayout";
+import TopNavbar from "@/components/layout/student/TopNavbar";
 import { toast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
 import { clubAPI } from "@/modules/student/services/api";

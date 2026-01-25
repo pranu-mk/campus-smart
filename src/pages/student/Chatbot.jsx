@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Send, User, HelpCircle, GraduationCap, FileText, DollarSign, Loader2 } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
+import MainLayout from "@/components/layout/student/MainLayout";
 import { chatbotAPI } from "@/modules/student/services/api"; 
 import { toast } from "@/hooks/use-toast";
 

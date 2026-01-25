@@ -46,6 +46,13 @@ import Placements from "./pages/student/Placements";
 import Notices from "./pages/student/Notices";
 import StudentProfile from "./pages/student/StudentProfile";
 
+
+/* =======================
+   Faculty Dashboard Pages
+======================= */
+import FacultyIndex from "./pages/faculty/FacultyIndex";
+
+
 /* =======================
     Query Client
 ======================= */
@@ -85,6 +92,17 @@ const App = () => (
               <Route path="/cookies" element={<Cookies />} />
               <Route path="/latest-news" element={<LatestNews />} />
               <Route path="/holidays" element={<Holidays />} />
+
+              
+            {/* ---------- Faculty Dashboard Routes (wrapped with FacultyDashboardThemeProvider) ---------- */}
+            <Route
+              path="/dashboard/faculty/*"
+              element={
+                <ProtectedRoute allowedRole="faculty">
+                    <FacultyIndex />
+                </ProtectedRoute>
+              }
+            />  
 
               {/* ---------- Student Dashboard Routes ---------- */}
               {/* Note: All student routes are wrapped in StudentDashboardThemeProvider 

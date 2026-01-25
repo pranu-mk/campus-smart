@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, MapPin, Calendar, Package, X, Loader2, AlertCircle } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
-import TopNavbar from "@/components/layout/TopNavbar";
+import MainLayout from "@/components/layout/student/MainLayout";
+import TopNavbar from "@/components/layout/student/TopNavbar";
 import { toast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
 import { lostFoundAPI } from "@/modules/student/services/api";

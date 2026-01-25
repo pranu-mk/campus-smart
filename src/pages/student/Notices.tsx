@@ -4,7 +4,7 @@ import {
   Bell, GraduationCap, Calendar, Briefcase, 
   ChevronRight, Search, Loader2, Info, X 
 } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
+import MainLayout from "@/components/layout/student/MainLayout";
 import { toast } from "@/hooks/use-toast";
 import { noticeAPI } from "@/modules/student/services/api"; // Ensure this matches your API service path
 

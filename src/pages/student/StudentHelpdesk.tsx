@@ -4,8 +4,8 @@ import {
   MessageSquare, Clock, CheckCircle, Send, 
   ChevronDown, ChevronUp, User, AlertTriangle, Plus, Loader2 
 } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
-import TopNavbar from "@/components/layout/TopNavbar";
+import MainLayout from "@/components/layout/student/MainLayout";
+import TopNavbar from "@/components/layout/student/TopNavbar";
 import { toast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
 import axios from "axios"; // Ensure axios is installed

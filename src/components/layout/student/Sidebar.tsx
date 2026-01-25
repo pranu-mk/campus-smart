@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -37,11 +37,17 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme } = useStudentDashboardTheme();
-  const { user, logout } = useAuth(); // Access global auth state
+  const { user, logout } = useAuth(); 
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
+
+  // Reset image error state if the user object changes (e.g., new photo uploaded)
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.profile_picture]);
 
   const handleLogout = () => {
-    logout(); // Clear local state and storage
+    logout();
     navigate("/");
   };
 
@@ -72,14 +78,12 @@ const Sidebar = () => {
           <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 bg-white/20 ${
             theme === "fancy" ? "ring-2 ring-purple-400/30" : ""
           }`}>
-            {user?.profile_picture ? (
+            {user?.profile_picture && !imgError ? (
               <img
                 src={user.profile_picture}
                 alt="Profile"
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
+                onError={() => setImgError(true)}
               />
             ) : (
               <User className="w-6 h-6 text-white" />
@@ -96,7 +100,7 @@ const Sidebar = () => {
                 <p className="text-white/70 text-[11px] truncate font-mono">
                   {user.prn || "ID Pending"}
                 </p>
-                <p className="text-white/50 text-[10px] uppercase tracking-tighter truncate">
+                <p className="text-white/50 text-[10px] uppercase tracking-tighter truncate font-bold">
                   {user.department || "General"}
                 </p>
               </motion.div>
@@ -162,7 +166,7 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      {/* Profile & Logout */}
+      {/* Profile & Logout Section */}
       <div className="p-4 border-t border-white/10">
         <Link
           to="/dashboard/student/profile"

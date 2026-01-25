@@ -47,7 +47,6 @@ export const complaintAPI = {
   getById: async (complaintId: string) => apiRequest(`/student/complaints/${complaintId}`),
 };
 
-// FIXED: Added getNotices to match your Digital Notice Board page
 export const noticeAPI = {
   getNotices: async (limit = 20) => apiRequest(`/student/notices?limit=${limit}`),
   getAll: async (limit = 10) => apiRequest(`/student/notices?limit=${limit}`),
@@ -62,17 +61,24 @@ export const notificationAPI = {
 export const dashboardAPI = {
   getDashboardData: async () => apiRequest('/student/dashboard'),
   
-  updateProfile: async (userData: { fullName: string; mobileNumber: string; username: string }) => {
+  // UPDATED: Added department and profilePicture to the allowed type
+  updateProfile: async (userData: { 
+    fullName: string; 
+    mobileNumber: string; 
+    username: string;
+    department?: string; 
+    profilePicture?: any; // Ensure this is here
+  }) => {
     return apiRequest('/auth/update-profile', {
       method: 'PUT',
       body: JSON.stringify(userData),
     });
   },
-  // Add this to your dashboardAPI object
-getPlacements: async () => {
-  const response = await fetch('http://localhost:5000/api/placements/upcoming');
-  return response.json();
-},
+
+  getPlacements: async () => {
+    return apiRequest('/placements/upcoming');
+  },
+
   changePassword: async (passwordData: { oldPassword: string; newPassword: any }) => {
     return apiRequest('/auth/change-password', {
       method: 'PUT',

@@ -5,8 +5,8 @@ import {
   Users, CheckCircle, Clock, Loader2, ChevronDown, ChevronUp, Award,
   FileText // Added missing import
 } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
-import TopNavbar from "@/components/layout/TopNavbar";
+import MainLayout from "@/components/layout/student/MainLayout";
+import TopNavbar from "@/components/layout/student/TopNavbar";
 import { toast } from "@/hooks/use-toast";
 import { useTheme } from "@/context/ThemeContext";
 import { placementAPI } from "@/modules/student/services/api";

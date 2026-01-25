@@ -12,33 +12,40 @@ const login = async (req, res) => {
             return res.status(400).json({ success: false, message: "Required fields missing." });
         }
 
+        // Fetch user by username or email
         const [rows] = await db.execute("SELECT * FROM users WHERE username = ? OR email = ?", [identifier, identifier]);
         const user = rows[0];
 
+        // Verify password
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ success: false, message: "Invalid credentials." });
         }
 
+        // Handle role validation
         if (!selectedRole) selectedRole = user.role;
-
         if (user.role.toLowerCase() !== selectedRole.toLowerCase()) {
             return res.status(401).json({ success: false, message: `Please select the correct role.` });
         }
 
+        // Generate JWT
         const token = jwt.sign(
             { id: user.id, role: user.role.toLowerCase() }, 
             process.env.JWT_SECRET, 
             { expiresIn: '1h' }
         );
 
+        // Return full user details for the AuthContext
         return res.json({
             success: true,
             token,
             role: user.role.toLowerCase(),
             id: user.id,
             full_name: user.full_name,
+            email: user.email,
             prn: user.prn,
             department: user.department,
+            course: user.course,
+            year: user.year,
             profile_picture: user.profile_picture
         });
 
@@ -54,9 +61,10 @@ const register = async (req, res) => {
         const { 
             role, fullName, email, mobile, username, password, 
             studentId, department, course, yearSemester, 
-            facultyId, designation, photo 
+            facultyId, designation, photo, profilePicture 
         } = req.body;
 
+        // Check if user already exists
         const [existing] = await db.execute("SELECT id FROM users WHERE username = ? OR email = ?", [username, email]);
         if (existing.length > 0) {
             return res.status(400).json({ success: false, message: "Username or Email already exists." });
@@ -83,12 +91,11 @@ const register = async (req, res) => {
             yearSemester || null, 
             facultyId || null, 
             designation || null, 
-            department, 
-            photo || null
+            department ?? null, 
+            (photo || profilePicture) ?? null // Normalizes the image field
         ];
 
         await db.execute(sql, values);
-
         res.status(201).json({ success: true, message: "Registration successful!" });
     } catch (err) {
         console.error("Register Error:", err);
@@ -96,7 +103,7 @@ const register = async (req, res) => {
     }
 };
 
-// --- 3. UPDATE PROFILE LOGIC (DEFENSIVE RENDERING FIX) ---
+// --- 3. UPDATE PROFILE LOGIC ---
 const updateProfile = async (req, res) => {
     try {
         if (!req.user || !req.user.id) {
@@ -104,33 +111,16 @@ const updateProfile = async (req, res) => {
         }
 
         const userId = req.user.id;
+        const { fullName, mobileNumber, username, department, profilePicture } = req.body;
 
-        // Extracting data from request body
-        const { 
-            fullName, 
-            mobile, 
-            mobileNumber, 
-            username, 
-            department, 
-            profilePicture 
-        } = req.body;
-
-        /**
-         * BIND PARAMETER FIX:
-         * MySQL2 driver crashes if any value is 'undefined'.
-         * We use ?? null to force undefined values into valid SQL NULLs.
-         */
         const values = [
             fullName ?? null,
-            (mobileNumber || mobile) ?? null, // Supports both mobile field names
+            mobileNumber ?? null,
             username ?? null,
             department ?? null,
             profilePicture ?? null,
             userId
         ];
-
-        // Logging the data to your terminal for verification
-        console.log("Updating Profile for User ID:", userId, "with values:", values);
 
         const sql = `
             UPDATE users 
@@ -144,15 +134,22 @@ const updateProfile = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        res.json({ success: true, message: "Profile updated successfully!" });
+        // CRITICAL FIX: Fetch full user row to send back to frontend
+        // This prevents the frontend state from losing "locked" fields like PRN or email
+        const [updatedRows] = await db.execute(
+            "SELECT id, role, full_name, email, prn, department, course, year, mobile_number, profile_picture FROM users WHERE id = ?", 
+            [userId]
+        );
+
+        res.json({ 
+            success: true, 
+            message: "Profile updated successfully!",
+            user: updatedRows[0] 
+        });
 
     } catch (err) {
-        // Detailed error logging for the terminal
-        console.error("Update Profile Error Detail:", err.message);
-        res.status(500).json({ 
-            success: false, 
-            message: "Failed to update profile: " + err.message 
-        });
+        console.error("Update Error:", err.message);
+        res.status(500).json({ success: false, message: "Server error during update" });
     }
 };
 
@@ -175,6 +172,7 @@ const changePassword = async (req, res) => {
 
         res.json({ success: true, message: "Password updated successfully!" });
     } catch (err) {
+        console.error("Password Change Error:", err);
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };

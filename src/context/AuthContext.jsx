@@ -1,34 +1,30 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // STEP 1: Initialize state from localStorage to prevent "blank on reload"
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user_data");
     try {
       return savedUser ? JSON.parse(savedUser) : null;
     } catch (error) {
-      console.error("Error parsing user data from localStorage", error);
+      console.error("Error parsing user data", error);
       return null;
     }
   });
 
-  // STEP 2: Update both State and LocalStorage on login
-  const login = (userData) => {
-    // Expected structure based on your SQL: 
-    // { id, role, full_name, prn, department, profile_picture }
-    setUser(userData);
-    localStorage.setItem("user_data", JSON.stringify(userData));
+  // FIXED: Merges new data with existing data to prevent loss of fields
+  const login = (newData) => {
+    setUser(prevUser => {
+      const updatedUser = prevUser ? { ...prevUser, ...newData } : newData;
+      localStorage.setItem("user_data", JSON.stringify(updatedUser));
+      return updatedUser;
+    });
   };
 
-  // STEP 3: Clear everything on logout
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user_data");
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("userName");
+    ["user_data", "token", "role", "userName"].forEach(key => localStorage.removeItem(key));
   };
 
   return (
@@ -40,8 +36,6 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };

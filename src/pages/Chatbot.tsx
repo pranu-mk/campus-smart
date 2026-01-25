@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Bot, Send, User, HelpCircle, GraduationCap, FileText, DollarSign } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
+import MainLayout from "@/components/layout/student/MainLayout";
 
 interface Message {
   id: string;

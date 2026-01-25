@@ -6,8 +6,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import MainLayout from "@/components/layout/MainLayout";
-import TopNavbar from "@/components/layout/TopNavbar";
+import MainLayout from "@/components/layout/student/MainLayout";
+import TopNavbar from "@/components/layout/student/TopNavbar";
 import StatCard from "@/components/dashboard/students/StatCard";
 import QuickActionCard from "@/components/dashboard/students/QuickActionCard";
 import ComplaintsTable from "@/components/dashboard/students/ComplaintsTable";
@@ -105,11 +105,10 @@ const Dashboard = () => {
   return (
     <MainLayout>
       <TopNavbar
-        title="Student Dashboard"
-        subtitle={`Welcome back, ${dashboardData?.user?.full_name || 'Student'}`}
-        notifications={dashboardData?.notifications || []}
-        userData={dashboardData?.user}
-      />
+  title="Student Dashboard"
+  subtitle={`Welcome back, ${dashboardData?.user?.full_name || 'Student'}`}
+  notifications={dashboardData?.notifications || []}
+/>
 
       {/* PLACEMENT TICKER COMPONENT */}
       <PlacementTicker placements={dashboardData.placements} />

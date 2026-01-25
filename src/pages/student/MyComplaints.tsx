@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Clock, Loader2, CheckCircle, Search, Filter, X, MessageSquare, AlertCircle, ExternalLink } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
+import MainLayout from "@/components/layout/student/MainLayout";
 import { complaintAPI } from "@/modules/student/services/api";
 import { toast } from "@/hooks/use-toast";
 

@@ -15,7 +15,7 @@ import {
   FileText, // Add this
   Loader2   // Add this
 } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
+import MainLayout from "@/components/layout/student/MainLayout";
 import { toast } from "@/hooks/use-toast";
 import { complaintAPI } from "@/modules/student/services/api";
 
