@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { verifyToken, verifyRole } = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authMiddleware');
 
 // 1. DEBUGGING LOG
 // This helps you see in your terminal if all functions are loaded correctly
@@ -14,11 +14,15 @@ console.log("Checking Auth Controller Functions:", {
 
 // 2. PUBLIC ROUTES
 // These do not require a token because the user isn't logged in yet
+
+// Login Route - Must be POST
 if (typeof authController.login === 'function') {
     router.post('/login', authController.login);
+} else {
+    console.error("❌ ERROR: authController.login is NOT defined in your controller file!");
 }
 
-// THE FIX: Added the registration route
+// Registration Route - Must be POST
 if (typeof authController.register === 'function') {
     router.post('/register', authController.register);
 } else {
@@ -26,23 +30,20 @@ if (typeof authController.register === 'function') {
 }
 
 // 3. PROTECTED ROUTES (Requires Login)
-// We use verifyToken first to make sure the user is who they say they are
+// verifyToken ensures the user has a valid session/token before proceeding
 
-// Student specific updates
+// Student/Faculty profile updates
 router.put(
     '/update-profile', 
     verifyToken, 
     authController.updateProfile
 );
 
+// Password change functionality
 router.put(
     '/change-password', 
     verifyToken, 
     authController.changePassword
 );
-
-// 4. ROLE-BASED CHECK (Optional helper)
-// If you want to ensure ONLY students can hit these routes:
-// router.put('/update-profile', verifyToken, verifyRole('student'), authController.updateProfile);
 
 module.exports = router;

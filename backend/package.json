@@ -1,7 +1,6 @@
 {
   "name": "campus-canvas-backend",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -13,13 +12,14 @@
   "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
-    "mysql2": "^3.16.1",
+    "mysql2": "^3.16.2",
     "nodemailer": "^7.0.12",
-    "twilio": "^5.11.2"
-  }
+    "twilio": "^5.12.0"
+  },
+  "description": ""
 }
