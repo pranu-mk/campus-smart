@@ -10,7 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 
 /* =======================
-    Public Pages
+   Public Pages
 ======================= */
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -31,7 +31,7 @@ import Holidays from "./pages/Holidays";
 import NotFound from "./pages/NotFound";
 
 /* =======================
-    Student Dashboard Pages
+   Student Dashboard Pages
 ======================= */
 import Dashboard from "./pages/student/Dashboard";
 import RaiseComplaint from "./pages/student/RaiseComplaint";
@@ -46,20 +46,23 @@ import Placements from "./pages/student/Placements";
 import Notices from "./pages/student/Notices";
 import StudentProfile from "./pages/student/StudentProfile";
 
-
 /* =======================
    Faculty Dashboard Pages
 ======================= */
 import FacultyIndex from "./pages/faculty/FacultyIndex";
 
+/* =======================
+   Admin Dashboard Pages
+======================= */
+import AdminIndex from "./pages/admin/AdminIndex";
 
 /* =======================
-    Query Client
+   Query Client Setup
 ======================= */
 const queryClient = new QueryClient();
 
 /* =======================
-    App Root
+   App Root
 ======================= */
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -67,10 +70,8 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-
         <BrowserRouter>
           <ScrollToTop />
-
           <ThemeProvider>
             <Routes>
               {/* ---------- Public Routes ---------- */}
@@ -93,150 +94,48 @@ const App = () => (
               <Route path="/latest-news" element={<LatestNews />} />
               <Route path="/holidays" element={<Holidays />} />
 
-              
-            {/* ---------- Faculty Dashboard Routes (wrapped with FacultyDashboardThemeProvider) ---------- */}
-            <Route
-              path="/dashboard/faculty/*"
-              element={
-                <ProtectedRoute allowedRole="faculty">
+              {/* ---------- Faculty Dashboard Routes ---------- */}
+              <Route
+                path="/dashboard/faculty/*"
+                element={
+                  <ProtectedRoute allowedRole="faculty">
                     <FacultyIndex />
-                </ProtectedRoute>
-              }
-            />  
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* ---------- Admin Dashboard Routes ---------- */}
+              <Route
+                path="/dashboard/admin/*"
+                element={
+                  <ProtectedRoute allowedRole="admin">
+                    <AdminIndex />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* ---------- Student Dashboard Routes ---------- */}
-              {/* Note: All student routes are wrapped in StudentDashboardThemeProvider 
-                  and ProtectedRoute to ensure role-based access control.
-              */}
-              
-              <Route
-                path="/dashboard/student/raise-complaint"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <RaiseComplaint />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/my-complaints"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <MyComplaints />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/helpdesk"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <StudentHelpdesk />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/chatbot"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <Chatbot />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/lost-found"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <LostAndFound />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/events"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <Events />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/clubs"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <StudentClubs />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/polling"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <Polling />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/placements"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <Placements />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/notices"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <Notices />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              <Route
-                path="/dashboard/student/profile"
-                element={
-                  <StudentDashboardThemeProvider>
-                    <ProtectedRoute allowedRole="student">
-                      <StudentProfile />
-                    </ProtectedRoute>
-                  </StudentDashboardThemeProvider>
-                }
-              />
-
-              {/* Main Dashboard Base Route */}
               <Route
                 path="/dashboard/student/*"
                 element={
                   <StudentDashboardThemeProvider>
                     <ProtectedRoute allowedRole="student">
-                      <Dashboard />
+                      <Routes>
+                        <Route index element={<Dashboard />} />
+                        <Route path="raise-complaint" element={<RaiseComplaint />} />
+                        <Route path="my-complaints" element={<MyComplaints />} />
+                        <Route path="helpdesk" element={<StudentHelpdesk />} />
+                        <Route path="chatbot" element={<Chatbot />} />
+                        <Route path="lost-found" element={<LostAndFound />} />
+                        <Route path="events" element={<Events />} />
+                        <Route path="clubs" element={<StudentClubs />} />
+                        <Route path="polling" element={<Polling />} />
+                        <Route path="placements" element={<Placements />} />
+                        <Route path="notices" element={<Notices />} />
+                        <Route path="profile" element={<StudentProfile />} />
+                        {/* Fallback for student dashboard */}
+                        <Route path="*" element={<Dashboard />} />
+                      </Routes>
                     </ProtectedRoute>
                   </StudentDashboardThemeProvider>
                 }

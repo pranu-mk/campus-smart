@@ -149,7 +149,7 @@ const Profile = () => {
              )}
           </div>
           
-          <h2 className="text-xl font-bold">{profile.fullName || "Name Not Set"}</h2>
+          <h2 className="text-xl font-bold text-black">{profile.fullName || "Name Not Set"}</h2>
           <p className="text-[#4f6fdc] font-semibold">{profile.prn || "PRN Not Available"}</p>
           <p className={`text-sm mt-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}>
             {profile.department || "Department Not Set"}

@@ -51,7 +51,7 @@ const TopNavbar = ({ title, subtitle, notifications = [] }: TopNavbarProps) => {
         </div>
 
         <div>
-          <h1 className="text-xl font-bold leading-tight">
+          <h1 className="text-xl font-bold leading-tight text-black">
             {/* If on a specific page, show title. If on home, show Welcome + Name */}
             {user?.full_name ? `Welcome, ${user.full_name}` : title}
           </h1>

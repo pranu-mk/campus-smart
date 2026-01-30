@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Added hooks
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { FileText, Clock, CheckCircle, XCircle, Calendar, Loader2 } from "lucide-react";
 import StatCard from "@/components/dashboard/faculty/StatCard";
@@ -11,7 +11,7 @@ interface DashboardProps {
   theme?: Theme;
 }
 
-// Interface to match our Backend Response
+// 1. Updated Interface to include chartData
 interface DashboardStats {
   totalAssigned: number;
   pending: number;
@@ -19,6 +19,9 @@ interface DashboardStats {
   rejected: number;
   todaysComplaints: number;
   facultyName: string;
+  chartData: { name: string; total: number }[];
+  pieData: { name: string; value: number; color: string }[];
+  recentActivity: { id: number; title: string; status: string; studentName: string; timestamp: string }[]; // Add this
 }
 
 const Dashboard = ({ theme = "dark" }: DashboardProps) => {
@@ -33,7 +36,7 @@ const Dashboard = ({ theme = "dark" }: DashboardProps) => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token"); // Get your JWT
+        const token = localStorage.getItem("token");
         const response = await axios.get("http://localhost:5000/api/faculty/stats", {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -76,7 +79,7 @@ const Dashboard = ({ theme = "dark" }: DashboardProps) => {
         </div>
       </div>
 
-      {/* Stats Grid - Now using real 'stats' variable */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           title="Total Assigned"
@@ -118,16 +121,17 @@ const Dashboard = ({ theme = "dark" }: DashboardProps) => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <ComplaintsChart theme={theme} />
+          {/* 2. Passing the real chart data here */}
+          <ComplaintsChart theme={theme} data={stats?.chartData || []} />
         </div>
         <div>
-          <StatusPieChart theme={theme} />
+          <StatusPieChart theme={theme} data={stats?.pieData || []} />
         </div>
       </div>
 
       {/* Activity Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentActivity theme={theme} />
+        <RecentActivity theme={theme} activities={stats?.recentActivity || []} />
         
         <div className={`rounded-xl p-6 border ${isDark || isFancy ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
           <h3 className={`text-lg font-semibold mb-4 ${textPrimary}`}>Quick Actions</h3>

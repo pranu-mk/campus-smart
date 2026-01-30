@@ -1,0 +1,364 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* ========== ADMIN NEON THEME - SCOPED TO .admin-neon-theme CLASS ONLY ========== */
+/* This CSS file applies ONLY to admin dashboard and admin modules */
+/* Does NOT affect: Home Page, Student Dashboard, Faculty Dashboard */
+.admin-neon-theme {
+  --background: 230 25% 5%;
+  --foreground: 180 100% 95%;
+
+  --card: 230 30% 8%;
+  --card-foreground: 180 100% 95%;
+
+  --popover: 230 30% 10%;
+  --popover-foreground: 180 100% 95%;
+
+  --primary: 180 100% 50%;
+  --primary-foreground: 230 25% 5%;
+
+  --secondary: 270 100% 65%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 230 20% 15%;
+  --muted-foreground: 220 15% 60%;
+
+  --accent: 320 100% 60%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 100% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 230 30% 20%;
+  --input: 230 30% 15%;
+  --ring: 180 100% 50%;
+
+  --radius: 0.75rem;
+
+  /* Custom Neon Colors */
+  --neon-cyan: 180 100% 50%;
+  --neon-purple: 270 100% 65%;
+  --neon-pink: 320 100% 60%;
+  --neon-green: 150 100% 50%;
+  --neon-blue: 210 100% 60%;
+  --neon-orange: 25 100% 55%;
+  --neon-yellow: 50 100% 55%;
+  --neon-red: 0 100% 50%;
+
+  /* Glow Effects */
+  --glow-cyan: 0 0 20px hsl(180 100% 50% / 0.5), 0 0 40px hsl(180 100% 50% / 0.3), 0 0 60px hsl(180 100% 50% / 0.1);
+  --glow-purple: 0 0 20px hsl(270 100% 65% / 0.5), 0 0 40px hsl(270 100% 65% / 0.3), 0 0 60px hsl(270 100% 65% / 0.1);
+  --glow-pink: 0 0 20px hsl(320 100% 60% / 0.5), 0 0 40px hsl(320 100% 60% / 0.3), 0 0 60px hsl(320 100% 60% / 0.1);
+  --glow-green: 0 0 20px hsl(150 100% 50% / 0.5), 0 0 40px hsl(150 100% 50% / 0.3), 0 0 60px hsl(150 100% 50% / 0.1);
+
+  /* Gradients */
+  --gradient-cyber: linear-gradient(135deg, hsl(180 100% 50%), hsl(270 100% 65%));
+  --gradient-aurora: linear-gradient(135deg, hsl(270 100% 65%), hsl(320 100% 60%), hsl(180 100% 50%));
+  --gradient-neon-glow: linear-gradient(180deg, hsl(180 100% 50% / 0.1), transparent);
+
+  /* Sidebar */
+  --sidebar-background: 230 30% 6%;
+  --sidebar-foreground: 180 100% 90%;
+  --sidebar-primary: 180 100% 50%;
+  --sidebar-primary-foreground: 230 25% 5%;
+  --sidebar-accent: 270 100% 65%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 230 30% 15%;
+  --sidebar-ring: 180 100% 50%;
+}
+
+/* ========== ADMIN TYPOGRAPHY ========== */
+.admin-neon-theme h1,
+.admin-neon-theme h2,
+.admin-neon-theme h3,
+.admin-neon-theme h4,
+.admin-neon-theme h5,
+.admin-neon-theme h6 {
+  font-family: 'Orbitron', sans-serif;
+  color: #ffffff;
+}
+
+.admin-neon-theme {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ========== ADMIN CUSTOM SCROLLBAR ========== */
+.admin-neon-theme ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-neon-theme ::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+.admin-neon-theme ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, hsl(var(--neon-cyan)), hsl(var(--neon-purple)));
+  border-radius: 4px;
+}
+
+.admin-neon-theme ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, hsl(var(--neon-purple)), hsl(var(--neon-pink)));
+}
+
+/* ========== ADMIN NEON GLOW EFFECTS ========== */
+.admin-neon-theme .glow-cyan {
+  box-shadow: var(--glow-cyan);
+}
+
+.admin-neon-theme .glow-purple {
+  box-shadow: var(--glow-purple);
+}
+
+.admin-neon-theme .glow-pink {
+  box-shadow: var(--glow-pink);
+}
+
+.admin-neon-theme .glow-green {
+  box-shadow: var(--glow-green);
+}
+
+/* ========== ADMIN NEON BORDERS ========== */
+.admin-neon-theme .neon-border {
+  border: 1px solid hsl(var(--neon-cyan) / 0.5);
+  box-shadow: inset 0 0 20px hsl(var(--neon-cyan) / 0.1), var(--glow-cyan);
+}
+
+.admin-neon-theme .neon-border-purple {
+  border: 1px solid hsl(var(--neon-purple) / 0.5);
+  box-shadow: inset 0 0 20px hsl(var(--neon-purple) / 0.1), var(--glow-purple);
+}
+
+.admin-neon-theme .neon-border-pink {
+  border: 1px solid hsl(var(--neon-pink) / 0.5);
+  box-shadow: inset 0 0 20px hsl(var(--neon-pink) / 0.1), var(--glow-pink);
+}
+
+/* ========== ADMIN GLASSMORPHISM ========== */
+.admin-neon-theme .glass {
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+.admin-neon-theme .glass-dark {
+  background: hsl(var(--background) / 0.8);
+  backdrop-filter: blur(30px);
+  border: 1px solid hsl(var(--border) / 0.3);
+}
+
+/* ========== ADMIN GRADIENT TEXT ========== */
+.admin-neon-theme .gradient-text {
+  background: var(--gradient-cyber);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.admin-neon-theme .gradient-text-aurora {
+  background: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========== ADMIN ANIMATED GRADIENT BORDER ========== */
+.admin-neon-theme .animated-border {
+  position: relative;
+  background: hsl(var(--card));
+  border-radius: var(--radius);
+}
+
+.admin-neon-theme .animated-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius) + 2px);
+  background: linear-gradient(90deg, hsl(var(--neon-cyan)), hsl(var(--neon-purple)), hsl(var(--neon-pink)), hsl(var(--neon-cyan)));
+  background-size: 300% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+  z-index: -1;
+}
+
+/* ========== ADMIN PULSE GLOW ========== */
+.admin-neon-theme .pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* ========== ADMIN GRID PATTERN ========== */
+.admin-neon-theme .grid-pattern {
+  background-image: 
+    linear-gradient(hsl(var(--neon-cyan) / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--neon-cyan) / 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* ========== ADMIN SCAN LINES ========== */
+.admin-neon-theme .scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    hsl(var(--neon-cyan) / 0.03) 2px,
+    hsl(var(--neon-cyan) / 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* ========== ADMIN NEON TEXT COLORS ========== */
+.admin-neon-theme .text-neon-cyan {
+  color: #00FFFF !important;
+  text-shadow: 0 0 10px #00FFFF;
+}
+
+.admin-neon-theme .text-neon-purple {
+  color: #BB00FF !important;
+  text-shadow: 0 0 10px #BB00FF;
+}
+
+.admin-neon-theme .text-neon-pink {
+  color: #FF1493 !important;
+  text-shadow: 0 0 10px #FF1493;
+}
+
+.admin-neon-theme .text-neon-green {
+  color: #39FF14 !important;
+  text-shadow: 0 0 10px #39FF14;
+}
+
+.admin-neon-theme .text-neon-red {
+  color: #FF0000 !important;
+  text-shadow: 0 0 10px #FF0000;
+}
+
+.admin-neon-theme .text-neon-yellow {
+  color: #FFFF00 !important;
+  text-shadow: 0 0 10px #FFFF00;
+}
+
+.admin-neon-theme .text-neon-orange {
+  color: #FFA500 !important;
+  text-shadow: 0 0 10px #FFA500;
+}
+
+.admin-neon-theme .text-neon-blue {
+  color: #00BFFF !important;
+  text-shadow: 0 0 10px #00BFFF;
+}
+
+/* ========== ADMIN NEON TEXT GLOW ========== */
+.admin-neon-theme .text-glow-cyan {
+  text-shadow: 0 0 10px hsl(var(--neon-cyan)), 0 0 20px hsl(var(--neon-cyan) / 0.5), 0 0 30px hsl(var(--neon-cyan) / 0.3);
+}
+
+.admin-neon-theme .text-glow-purple {
+  text-shadow: 0 0 10px hsl(var(--neon-purple)), 0 0 20px hsl(var(--neon-purple) / 0.5), 0 0 30px hsl(var(--neon-purple) / 0.3);
+}
+
+.admin-neon-theme .text-glow-pink {
+  text-shadow: 0 0 10px hsl(var(--neon-pink)), 0 0 20px hsl(var(--neon-pink) / 0.5), 0 0 30px hsl(var(--neon-pink) / 0.3);
+}
+
+/* ========== ADMIN FOREGROUND TEXT ========== */
+.admin-neon-theme .text-foreground {
+  color: #ffffff !important;
+}
+
+.admin-neon-theme .text-muted-foreground {
+  color: #9ca3af !important;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ========== ADMIN NEON THEME ========== */
+.admin-neon-theme {
+  --background: 230 25% 5%;
+  --foreground: 180 100% 95%;
+  --card: 230 30% 8%;
+  --card-foreground: 180 100% 95%;
+  --muted-foreground: 220 15% 60%;
+}
+
+.admin-neon-theme h1,
+.admin-neon-theme h2,
+.admin-neon-theme h3,
+.admin-neon-theme h4,
+.admin-neon-theme h5,
+.admin-neon-theme h6 {
+  font-family: 'Orbitron', sans-serif;
+  color: #ffffff;
+}
+
+.admin-neon-theme .text-foreground {
+  color: #ffffff !important;
+}
+
+.admin-neon-theme .text-muted-foreground {
+  color: #9ca3af !important;
+}
+
+/* ========== NEON TEXT COLORS ========== */
+.text-neon-cyan {
+  color: #00FFFF !important;
+  text-shadow: 0 0 10px #00FFFF;
+}
+
+.text-neon-purple {
+  color: #BB00FF !important;
+  text-shadow: 0 0 10px #BB00FF;
+}
+
+.text-neon-pink {
+  color: #FF1493 !important;
+  text-shadow: 0 0 10px #FF1493;
+}
+
+.text-neon-green {
+  color: #39FF14 !important;
+  text-shadow: 0 0 10px #39FF14;
+}
+
+.text-neon-red {
+  color: #FF0000 !important;
+  text-shadow: 0 0 10px #FF0000;
+}
+
+.text-neon-yellow {
+  color: #FFFF00 !important;
+  text-shadow: 0 0 10px #FFFF00;
+}
+
+.text-neon-orange {
+  color: #FFA500 !important;
+  text-shadow: 0 0 10px #FFA500;
+}
+
+.text-neon-blue {
+  color: #00BFFF !important;
+  text-shadow: 0 0 10px #00BFFF;
+}

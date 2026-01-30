@@ -53,6 +53,12 @@ export default {
         },
         glow: "hsl(var(--glow-color))",
         "surface-elevated": "hsl(var(--surface-elevated))",
+        "neon-cyan": "#00FFFF",
+        "neon-purple": "#BB00FF",
+        "neon-pink": "#FF1493",
+        "neon-green": "#39FF14",
+        "neon-yellow": "#FFFF00",
+        "neon-orange": "#FF8C00",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -117,6 +123,14 @@ export default {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
+        "neon-glow-pulse": {
+          "0%, 100%": { 
+            boxShadow: "0 0 5px rgba(0, 255, 255, 0.3), 0 0 10px rgba(0, 255, 255, 0.1)" 
+          },
+          "50%": { 
+            boxShadow: "0 0 20px rgba(0, 255, 255, 0.6), 0 0 30px rgba(0, 255, 255, 0.3)" 
+          },
+        },
       },
       animation: {
         "float": "float 6s ease-in-out infinite",
@@ -134,6 +148,7 @@ export default {
         "blob": "blob 7s infinite",
         "blob-slow": "blob 10s infinite",
         "gradient-shift": "gradient-shift 6s ease infinite",
+        "neon-glow-pulse": "neon-glow-pulse 3s ease-in-out infinite",
       },
       backgroundSize: {
         "400": "400% 400%",
