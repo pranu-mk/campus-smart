@@ -51,7 +51,11 @@ const statusColors = {
   Completed: { bg: "#F3F4F6", text: "#4B5563", border: "#D1D5DB" },
 };
 
-const Events = () => {
+interface EventsProps {
+  theme?: "dark" | "light" | "fancy";
+}
+
+const Events = ({ theme = "dark" }: EventsProps) => {
   const { toast } = useToast();
   const [eventList, setEventList] = useState<Event[]>([]);
   const [stats, setStats] = useState({ pending: 0, approved: 0, completed: 0, totalThisMonth: 0 });
@@ -65,6 +69,12 @@ const Events = () => {
   const [confirmAction, setConfirmAction] = useState<{ event: Event; action: "approve" | "reject" } | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [changeDecisionEvent, setChangeDecisionEvent] = useState<Event | null>(null);
+
+  // --- Theme Helpers (Fixes the 'textPrimary' error) ---
+  const isDark = theme === "dark";
+  const isFancy = theme === "fancy";
+  const textPrimary = isDark || isFancy ? "text-gray-100" : "text-gray-800";
+  const textSecondary = isDark || isFancy ? "text-gray-400" : "text-gray-500";
 
   // --- API: Fetch Initial Data ---
   const fetchData = async () => {
@@ -137,7 +147,7 @@ const Events = () => {
     <div className="page-enter space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Event Management</h1>
+        <h1 className={`text-2xl font-bold ${textPrimary}`}>Event Management</h1>
         <p className="text-gray-500 mt-1">Manage and approve college events</p>
       </div>
 
